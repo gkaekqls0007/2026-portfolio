@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio Page</title>
+<meta property="og:description" content="작은 시작도 끝까지 책임지는 디자이너 함다빈입니다." />
+<title>Dabin | Portfolio</title>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
 <style>
 /* 공통 스타일 */
@@ -15,6 +16,25 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+body.no-scroll {
+    overflow: hidden;
+}
+
+/* 스크롤바 디자인 (Webkit 기반) */
+body::-webkit-scrollbar {
+    width: 8px;
+}
+body::-webkit-scrollbar-track {
+    background: #e0e0e0;
+}
+body::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+body::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
 }
 
 /* 전체 컨테이너 */
@@ -32,6 +52,19 @@ body {
     max-width: 1920px;
     height: auto;
     display: block;
+}
+
+/* PC/Mobile 이미지 래퍼 스타일 */
+/* 기본값: PC 이미지를 표시하고 모바일 이미지를 숨김 */
+.pc-image-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 1920px;
+}
+.mob-image-wrapper {
+    display: none;
+    width: 100%;
+    max-width: 1920px;
 }
 
 /* 비디오 스타일 */
@@ -65,36 +98,405 @@ body {
     cursor: grabbing;
 }
 
+/* 팝업 오버레이 스타일 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 팝업 콘텐츠 */
+.popup-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    text-align: center;
+    background-size: cover;
+    background-position: center top;
+}
+
+/* 팝업 스크롤바 디자인 */
+.popup-content::-webkit-scrollbar {
+    width: 8px;
+}
+.popup-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.popup-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.popup-content.exhibition-popup {
+    background-image: url('assets/profile/profile_bg.jpg');
+    padding: 50px 20px;
+}
+
+.popup-content img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+/* 이미지 그룹 세로 정렬 */
+.popup-content .image-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 150px;
+    padding-top: 20px;
+}
+
+/* PC, M 이미지 간격 200px로 조정 */
+.popup-content .image-group.two-images-pc-m {
+    gap: 200px;
+}
+
+.popup-content .image-group.three-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.popup-content .image-group.four-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.popup-content .image-group .image-wrapper {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.popup-content .image-group .image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 타이틀 문구 스타일 */
+.popup-content .image-group .image-title {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* 팝업 닫기 버튼 */
+.popup-close {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 1001;
+    width: 40px !important;
+    height: 40px !important;
+    filter: invert(100%);
+}
+
+/* 모바일 전용, 검은색 닫기 버튼 */
+.popup-close.black-close-btn {
+    filter: invert(0%);
+}
+
+/* 기획전 페이지 스타일 (팝업용으로 수정) */
+.exhibition-grid {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* Masonry 레이아웃을 위한 컬럼 */
+.column-left,
+.column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 50%;
+}
+
+.exhibition-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.exhibition-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px;
+}
+
+.exhibition-item:hover img {
+    transform: scale(1.05);
+}
+
+.exhibition-grid-row {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* 새로운 레이아웃을 위한 CSS Grid */
+.exhibition-promo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto 0 auto;
+    padding: 0 20px;
+    align-items: start;
+}
+
+.exhibition-promo-grid .exhibition-item.item-19 {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+}
+
+/* 20-1, 20-2, 22번은 별도의 컨테이너로 묶고 Flexbox로 배치 */
+.exhibition-promo-grid .item-right-column {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.exhibition-promo-grid .exhibition-item-20-group {
+    display: flex;
+    gap: 20px;
+}
+.exhibition-promo-grid .exhibition-item-20-group .exhibition-item {
+    flex: 1;
+}
+
+/* 23, 24번 이미지를 위한 별도의 래퍼 */
+.exhibition-item-23-24-wrapper {
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 20px;
+}
+.exhibition-item-23-24-wrapper .exhibition-item {
+    flex: 1;
+}
+
+/* 25-35번 이미지를 위한 3열 Masonry 레이아웃 */
+.exhibition-masonry {
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto;
+    padding: 0 20px;
+    column-count: 3;
+    column-gap: 20px;
+}
+
+.exhibition-masonry .exhibition-item {
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid-column;
+    margin-bottom: 20px;
+}
+
+.exhibition-masonry .exhibition-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+.sub_txt{
+    opacity: 0.5;
+    font-size: 14px;
+    color: gray;
+    padding: 100px 0 0;
+    margin: 0;
+}
+
 /* 반응형 */
-@media (max-width: 1200px) {
+@media (min-width: 1480px) {
+     /* 1480px 이상일 때의 PC 스타일 */
+    .pc-image-wrapper {
+        display: block;
+    }
+    .mob-image-wrapper {
+        display: none;
+    }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap; /* 한 줄에 2개씩 표시되도록 변경 */
+        justify-content: center;
+        margin: 0 auto;
+    }
     .model-viewer-item {
-        width: 70%;
+        width: calc(40% - 40px); /* 2개가 한 줄에 보이도록 너비 조정 (margin 포함) */
+        max-width: none;
+        height: 600px; /* 원래 높이 유지 */
+        margin: 20px;
+    }
+}
+/* 추가된 미디어 쿼리: 769px ~ 1479px */
+@media (min-width: 769px) and (max-width: 1479px) {
+    .pc-image-wrapper {
+        display: block;
+    }
+    .mob-image-wrapper {
+        display: none;
+    }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .model-viewer-item {
+        width: calc(50% - 40px); /* 2개가 한 줄에 보이도록 너비 조정 (margin 포함) */
+        max-width: none;
         height: 600px;
+        margin: 20px;
+    }
+}
+@media (max-width: 768px) {
+    .pc-image-wrapper {
+        display: none;
+    }
+    .mob-image-wrapper {
+        display: block;
+    }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+	margin-bottom: 100px;
+    }
+    .model-viewer-item {
+        width: 45vw;
+        height: 45vw;
+        margin: 10px 1vw;
+    }
+    /* 타이틀 문구 스타일 */
+    .popup-content .image-group .image-title {
+        color: black;
+        font-size: 16px;
+        margin : 20px 40%;
+        padding : 10px;
+        font-weight: bold;
+        text-align: center;
+        background-color: white;
+        border-radius: 20px;
+    }
+
+    /* 팝업 콘텐츠 모바일 스타일 */
+    .popup-content {
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    /* 모든 팝업의 닫기 버튼 공통 스타일 */
+    .popup-close {
+        top: 20px;
+    right: 20px;
+    }
+    
+    /* 기획전 팝업 전용 스타일 */
+    .mobile-exhibition-overlay {
+        padding: 20px;
+    }
+    /* 일반 팝업 전용 스타일 */
+    .mobile-no-padding-overlay {
+        padding: 0px;
+    }
+
+    /* 기획전 팝업 내 레이아웃 */
+    .exhibition-masonry {
+        column-count: 2;
+    }
+    .exhibition-item-23-24-wrapper,
+    .exhibition-promo-grid {
+        display: block;
+    }
+    /* 새로운 레이아웃을 위한 CSS Grid */
+    .exhibition-promo-grid {
+        display: flex;
+        margin: 0;
+        padding: 20px 20px 0 20px;
+    }
+    .exhibition-item,
+    .exhibition-promo-grid .item-right-column {
+        width: 100%;
+    }
+    .exhibition-promo-grid .item-19 {
+        width: 100%;
+    }
+
+    .popup-content .image-group.three-images,
+    .popup-content .image-group.four-images {
+        grid-template-columns: 1fr;
+    }
+   /* 이미지 그룹 세로 정렬 */
+    .popup-content .image-group {
+        gap: 100px;
+    }
+    .sub_txt{
+        font-size: 12px;
     }
 }
 
-@media (max-width: 768px) {
-    .model-viewer-item {
-        width: 90%;
-        height: 600px;
-    }
-}
+
 </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 맨 위 이미지 -->
-    <img src="assets/profile_01.jpg" alt="Profile 01">
+    <div class="pc-image-wrapper">
+        <img src="assets/profile_01.jpg" alt="Profile 01">
+        <img src="assets/profile_02.jpg" alt="Profile 02">
+    </div>
+    <div class="mob-image-wrapper">
+        <img src="assets/mob_profile_01.jpg" alt="Mobile Profile">
+    </div>
 
-    <!-- 두 번째 이미지 -->
-    <img src="assets/profile_02.jpg" alt="Profile 02">
-
-    <!-- 동영상 -->
     <video id="myVideo" src="assets/gift_box_total_2.mp4" muted autoplay loop></video>
+    <p class="sub_txt">아래 object를 클릭하면 상세페이지로 넘어갑니다.</p>
 
-    <!-- 3D 포트폴리오 -->
-    <div class="model-viewer-wrapper">
+    <div class="model-viewer-wrapper" id="main-content">
         <model-viewer class="model-viewer-item"
             src="https://www.dkanrjsktmddlsgownj.x10.mx/assets/seasonOff.glb"
             alt="Project 1"
@@ -102,7 +504,10 @@ body {
             disable-zoom
             min-polar-angle="90deg"
             max-polar-angle="90deg"
-            data-portfolio-url="https://www.google.com">
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/SO_detail.jpg"
+            loading="eager">
         </model-viewer>
 
         <model-viewer class="model-viewer-item"
@@ -112,7 +517,10 @@ body {
             disable-zoom
             min-polar-angle="90deg"
             max-polar-angle="90deg"
-            data-portfolio-url="https://www.naver.com">
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/SA_detail.jpg"
+            loading="eager">
         </model-viewer>
 
         <model-viewer class="model-viewer-item"
@@ -122,7 +530,10 @@ body {
             disable-zoom
             min-polar-angle="90deg"
             max-polar-angle="90deg"
-            data-portfolio-url="https://www.daum.net">
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/FD_detail.jpg"
+            loading="eager">
         </model-viewer>
 
         <model-viewer class="model-viewer-item"
@@ -132,63 +543,509 @@ body {
             disable-zoom
             min-polar-angle="90deg"
             max-polar-angle="90deg"
-            data-portfolio-url="https://www.youtube.com">
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="exhibition_page"
+            loading="eager">
         </model-viewer>
     </div>
 </div>
 
+<div class="popup-overlay" id="general-image-overlay">
+    <div class="popup-content" id="general-image-content">
+        <img src="assets/close.png" alt="Close" class="popup-close" id="general-close-btn">
+        <div id="general-image-container"></div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="exhibition-list-overlay">
+    <div class="popup-content exhibition-popup" id="exhibition-list-content">
+        <img src="assets/close.png" alt="Close" class="popup-close" id="list-close-btn">
+        <div id="exhibition-list-container"></div>
+    </div>
+</div>
+
+<div class="popup-overlay" id="exhibition-detail-overlay">
+    <div class="popup-content" id="exhibition-detail-content">
+        <img src="assets/close.png" alt="Close" class="popup-close" id="detail-close-btn">
+        <div id="exhibition-detail-container"></div>
+    </div>
+</div>
+
 <script>
+let lastScrollPosition = 0;
+let popupScrollPosition = 0;
+let isDragging = false;
+let startX = 0;
+let startAzimuth = 0;
+
 const models = document.querySelectorAll('.model-viewer-item');
+const generalOverlay = document.getElementById('general-image-overlay');
+const generalContent = document.getElementById('general-image-content');
+const generalCloseBtn = document.getElementById('general-close-btn');
+const generalImageContainer = document.getElementById('general-image-container');
 
+const listOverlay = document.getElementById('exhibition-list-overlay');
+const listContent = document.getElementById('exhibition-list-content');
+const listCloseBtn = document.getElementById('list-close-btn');
+const listContainer = document.getElementById('exhibition-list-container');
+
+const detailOverlay = document.getElementById('exhibition-detail-overlay');
+const detailContent = document.getElementById('exhibition-detail-content');
+const detailCloseBtn = document.getElementById('detail-close-btn');
+const detailContainer = document.getElementById('exhibition-detail-container');
+
+function isWideScreen() {
+    return window.innerWidth >= 759;
+}
+
+// model-viewer 클릭/드래그 이벤트 처리
 models.forEach(model => {
-    let isDragging = false;
-    let startX = 0;
-    let azimuth = 0;
-
+    // 포인터가 눌렸을 때 드래그 시작 상태로 설정
     model.addEventListener('pointerdown', e => {
         isDragging = false;
-        startX = e.clientX || e.touches[0].clientX;
-        model.setPointerCapture(e.pointerId);
+        startX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+        
+        // model-viewer의 카메라 궤도 값을 가져옴
+        const cameraOrbit = model.cameraOrbit;
+        const orbitParts = cameraOrbit.split(' ');
+        startAzimuth = parseFloat(orbitParts[0]);
+
+        try { if (e.pointerId !== undefined) model.setPointerCapture(e.pointerId); } catch (err) {}
     });
 
+    // 포인터가 움직이면 드래그 상태로 설정하고 모델 회전
     model.addEventListener('pointermove', e => {
-        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        if (!clientX) return;
+        const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
+        if (clientX === undefined) return;
         const deltaX = clientX - startX;
-        if (Math.abs(deltaX) > 2) { // 2px 이상 이동 시 드래그
+
+        if (Math.abs(deltaX) > 2) {
             isDragging = true;
-            azimuth += deltaX * 0.5;
-            if (azimuth < -25) azimuth = -25;
-            if (azimuth > 25) azimuth = 25;
-            model.cameraOrbit = `${azimuth}deg 90deg auto`;
-            startX = clientX;
+            const newAzimuth = startAzimuth + deltaX * 0.1; // 회전 감도 조절
+            model.cameraOrbit = `${newAzimuth}deg 90deg auto`;
         }
     });
 
+    // 포인터가 떼어졌을 때
     model.addEventListener('pointerup', e => {
-        model.releasePointerCapture(e.pointerId);
-        if (!isDragging) {
-            const url = model.getAttribute('data-portfolio-url');
-            if (url) window.open(url, '_blank');
-        }
+        try { if (e.pointerId !== undefined) model.releasePointerCapture(e.pointerId); } catch (err) {}
     });
 
-    model.addEventListener('pointerleave', () => { isDragging = false; });
+    // 클릭 이벤트 핸들러
+    model.addEventListener('click', e => {
+        // 드래그 중인 경우에는 클릭 이벤트를 무시
+        if (isDragging) {
+            isDragging = false; // 드래그 상태 초기화
+            return;
+        }
+
+        const url = model.getAttribute('data-portfolio-url');
+        
+        if (url === 'exhibition_page') {
+            e.stopPropagation(); // 이벤트 버블링 즉시 중단
+            e.preventDefault();
+            lastScrollPosition = window.scrollY;
+            openExhibitionPagePopup();
+        } else if (url && (url.endsWith('.jpg') || url.endsWith('.png'))) {
+            e.stopPropagation();
+            e.preventDefault();
+            lastScrollPosition = window.scrollY;
+            openGeneralPopup(url);
+        } else if (url) {
+            window.open(url, '_blank');
+        }
+    });
+});
+
+function closeAllPopups() {
+   generalOverlay.style.display = 'none';
+   listOverlay.style.display = 'none';
+   detailOverlay.style.display = 'none';
+   document.body.classList.remove('no-scroll');
+   window.scrollTo(0, lastScrollPosition);
+   generalCloseBtn.classList.remove('black-close-btn');
+}
+
+function openGeneralPopup(imageSrc) {
+    let finalImageSrc = imageSrc;
+    
+    // PC/모바일 이미지 경로 결정
+    if (!isWideScreen()) {
+        const parts = imageSrc.split('/');
+        const fileName = parts.pop();
+        const newFileName = `mob_${fileName}`;
+        finalImageSrc = `${parts.join('/')}/${newFileName}`;
+    }
+
+    // 모바일 환경이고 FD_detail.jpg 페이지일 때 닫기 버튼을 검은색으로 변경
+    if (imageSrc.includes('FD_detail.jpg') && !isWideScreen()) {
+        generalCloseBtn.classList.add('black-close-btn');
+    } else {
+        generalCloseBtn.classList.remove('black-close-btn');
+    }
+
+    // 모바일 환경에서만 패딩 제거 클래스 추가
+    if (!isWideScreen()) {
+        generalOverlay.classList.add('mobile-no-padding-overlay');
+    } else {
+        generalOverlay.classList.remove('mobile-no-padding-overlay');
+    }
+
+    generalImageContainer.innerHTML = `<img src="${finalImageSrc}" alt="Popup Image">`;
+    generalOverlay.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+}
+
+function openExhibitionPagePopup() {
+    const exhibitionHtml = `
+        <div class="exhibition-grid">
+            <div class="column-left">
+                <div class="exhibition-item" data-image-path="1">
+                    <img src="assets/profile/profile_1.jpg" alt="Exhibition 1">
+                </div>
+                <div class="exhibition-item" data-image-path="3">
+                    <img src="assets/profile/profile_3.jpg" alt="Exhibition 3">
+                </div>
+                <div class="exhibition-item" data-image-path="5">
+                    <img src="assets/profile/profile_5.jpg" alt="Exhibition 5">
+                </div>
+                <div class="exhibition-item" data-image-path="7">
+                    <img src="assets/profile/profile_7.jpg" alt="Exhibition 7">
+                </div>
+                <div class="exhibition-item" data-image-path="9">
+                    <img src="assets/profile/profile_9.jpg" alt="Exhibition 9">
+                </div>
+                <div class="exhibition-item" data-image-path="11">
+                    <img src="assets/profile/profile_11.jpg" alt="Exhibition 11">
+                </div>
+                <div class="exhibition-item" data-image-path="13">
+                    <img src="assets/profile/profile_13.jpg" alt="Exhibition 13">
+                </div>
+                <div class="exhibition-item" data-image-path="15">
+                    <img src="assets/profile/profile_15.jpg" alt="Exhibition 15">
+                </div>
+            </div>
+            
+            <div class="column-right">
+                <div class="exhibition-item" data-image-path="2">
+                    <img src="assets/profile/profile_2.jpg" alt="Exhibition 2">
+                </div>
+                <div class="exhibition-item" data-image-path="4">
+                    <img src="assets/profile/profile_4.jpg" alt="Exhibition 4">
+                </div>
+                <div class="exhibition-item" data-image-path="6">
+                    <img src="assets/profile/profile_6.jpg" alt="Exhibition 6">
+                </div>
+                <div class="exhibition-item" data-image-path="8">
+                    <img src="assets/profile/profile_8.jpg" alt="Exhibition 8">
+                </div>
+                <div class="exhibition-item" data-image-path="10">
+                    <img src="assets/profile/profile_10.jpg" alt="Exhibition 10">
+                </div>
+                <div class="exhibition-item" data-image-path="12">
+                    <img src="assets/profile/profile_12.jpg" alt="Exhibition 12">
+                </div>
+                <div class="exhibition-item" data-image-path="14">
+                    <img src="assets/profile/profile_14.jpg" alt="Exhibition 14">
+                </div>
+                <div class="exhibition-item" data-image-path="16">
+                    <img src="assets/profile/profile_16.jpg" alt="Exhibition 16">
+                </div>
+                <div class="exhibition-item" data-image-path="18">
+                    <img src="assets/profile/profile_18.jpg" alt="Exhibition 18">
+                </div>
+            </div>
+        </div>
+
+        <div class="exhibition-promo-grid">
+            <div class="exhibition-item item-19" data-image-path="19">
+                <img src="assets/profile/profile_19.jpg" alt="Exhibition 19">
+            </div>
+            <div class="item-right-column">
+                <div class="exhibition-item-20-group">
+                    <div class="exhibition-item" data-image-path="20-1">
+                        <img src="assets/profile/profile_20_1.jpg" alt="Exhibition 20-1">
+                    </div>
+                    <div class="exhibition-item" data-image-path="20-2">
+                        <img src="assets/profile/profile_20_2.jpg" alt="Exhibition 20-2">
+                    </div>
+                </div>
+                <div class="exhibition-item" data-image-path="22">
+                    <img src="assets/profile/profile_22.jpg" alt="Exhibition 22">
+                </div>
+            </div>
+        </div>
+        
+        <div class="exhibition-item-23-24-wrapper">
+            <div class="exhibition-item" data-image-path="24" style=" padding-bottom: 20px;">
+                <img src="assets/profile/profile_24.jpg" alt="Exhibition 24">
+            </div>
+            <div class="exhibition-item" data-image-path="23">
+                <img src="assets/profile/profile_23.jpg" alt="Exhibition 23">
+            </div>
+        </div>
+
+        <div class="exhibition-masonry">
+            <div class="exhibition-item" data-image-path="25">
+                <img src="assets/profile/profile_25.jpg" alt="Exhibition 25">
+            </div>
+            <div class="exhibition-item" data-image-path="29">
+                <img src="assets/profile/profile_29.jpg" alt="Exhibition 29">
+            </div>
+            <div class="exhibition-item" data-image-path="33">
+                <img src="assets/profile/profile_33.jpg" alt="Exhibition 33">
+            </div>
+            <div class="exhibition-item" data-image-path="26">
+                <img src="assets/profile/profile_26.jpg" alt="Exhibition 26">
+            </div>
+            <div class="exhibition-item" data-image-path="30">
+                <img src="assets/profile/profile_30.jpg" alt="Exhibition 30">
+            </div>
+            <div class="exhibition-item" data-image-path="34">
+                <img src="assets/profile/profile_34.jpg" alt="Exhibition 34">
+            </div>
+            <div class="exhibition-item" data-image-path="27">
+                <img src="assets/profile/profile_27.jpg" alt="Exhibition 27">
+            </div>
+            <div class="exhibition-item" data-image-path="31">
+                <img src="assets/profile/profile_31.jpg" alt="Exhibition 31">
+            </div>
+            <div class="exhibition-item" data-image-path="35">
+                <img src="assets/profile/profile_35.jpg" alt="Exhibition 35">
+            </div>
+            <div class="exhibition-item" data-image-path="28">
+                <img src="assets/profile/profile_28.jpg" alt="Exhibition 28">
+            </div>
+            <div class="exhibition-item" data-image-path="32">
+                <img src="assets/profile/profile_32.jpg" alt="Exhibition 32">
+            </div>
+        </div>
+    `;
+    
+    listContainer.innerHTML = exhibitionHtml;
+
+    // 모바일 전용 클래스는 표시 전에 확실히 추가
+    listOverlay.classList.remove('mobile-no-padding-overlay');
+    if (!isWideScreen()) {
+       listOverlay.classList.add('mobile-exhibition-overlay');
+    } else {
+       listOverlay.classList.remove('mobile-exhibition-overlay');
+    }
+
+    // 리스트 오버레이 보이기
+    listOverlay.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+
+    // 팝업이 열린 직후 일정 시간 동안 클릭 이벤트를 무시하는 플래그
+    let ignoreNextClick = true;
+    listOverlay.addEventListener('click', (ev) => {
+        if (ignoreNextClick) {
+            ev.stopPropagation();
+            ev.preventDefault();
+            ignoreNextClick = false;
+        }
+    }, { once: true }); // 첫 번째 클릭만 막도록 once: true 사용
+
+    if (popupScrollPosition > 0) {
+        listContent.scrollTop = popupScrollPosition;
+        popupScrollPosition = 0;
+    }
+
+    // 전시 항목 클릭 리스너 연결
+    document.querySelectorAll('#exhibition-list-container .exhibition-item').forEach(item => {
+        item.addEventListener('click', (ev) => {
+            // 여기에서 발생하는 클릭은 사용자의 의도적 클릭입니다.
+            const imageNumber = item.getAttribute('data-image-path');
+            popupScrollPosition = listContent.scrollTop;
+            openExhibitionImagePopup(imageNumber);
+        });
+    });
+}
+
+function openExhibitionImagePopup(imageNumber) {
+    // 목록 숨기고 상세 보여주기
+    listOverlay.style.display = 'none';
+
+    let imagesHtml = '';
+
+    if (imageNumber === '15') {
+        imagesHtml = `
+            <div class="image-group">
+                <div class="image-wrapper">
+                    <div class="image-title">PC</div>
+                    <img src="assets/web/web_${imageNumber}_pc.jpg" alt="PC Image">
+                </div>
+            </div>
+        `;
+    }
+    else if (imageNumber === '20-1' || imageNumber === '20-2') {
+        const pcImage = `assets/web/web_${imageNumber.replace('-', '_')}_pc.jpg`;
+        const mImage = `assets/web/web_${imageNumber.replace('-', '_')}_m.jpg`;
+        imagesHtml = `
+            <div class="image-group two-images-pc-m">
+                <div class="image-wrapper">
+                    <div class="image-title">PC</div>
+                    <img src="${pcImage}" alt="PC Image">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M</div>
+                    <img src="${mImage}" alt="Mobile Image">
+                </div>
+            </div>
+        `;
+    }
+    else if (imageNumber === '23') {
+        imagesHtml = `
+            <div class="image-group">
+                <div class="image-wrapper">
+                    <div class="image-title">PC</div>
+                    <img src="assets/web/corner_a_231109_s_01.jpg" alt="Image 1">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M</div>
+                    <img src="assets/web/m_corner_a_231109_s_01.jpg" alt="Image 2">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">PC 띠배너</div>
+                    <img src="assets/web/main_h_231109_01.jpg" alt="Image 3">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M 띠배너</div>
+                    <img src="assets/web/m_main_h_231109_01.jpg" alt="Image 4">
+                </div>
+            </div>
+        `;
+    }
+    else if (imageNumber === '24') {
+        imagesHtml = `
+            <div class="image-group">
+                <div class="image-wrapper">
+                    <div class="image-title">PC</div>
+                    <img src="assets/web/corner_a_231106_s_01.jpg" alt="Image 1">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M</div>
+                    <img src="assets/web/m_corner_a_231106_s_01.jpg" alt="Image 2">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">PC 띠배너</div>
+                    <img src="assets/web/main_h_231106_01.jpg" alt="Image 3">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M 띠배너</div>
+                    <img src="assets/web/m_main_h_231106_01.jpg" alt="Image 4">
+                </div>
+            </div>
+        `;
+    }
+    else if (parseInt(imageNumber) >= 25 && parseInt(imageNumber) <= 35) {
+        const introNumber = parseInt(imageNumber) - 24;
+        imagesHtml = `
+            <div class="image-group">
+                <div class="image-wrapper">
+                    <img src="assets/intro/intro_${introNumber}.jpg" alt="Intro Image ${introNumber}">
+                </div>
+            </div>
+        `;
+    }
+    else {
+        const pcImage = `assets/web/web_${imageNumber}_pc.jpg`;
+        const mImage = `assets/web/web_${imageNumber}_m.jpg`;
+        imagesHtml = `
+            <div class="image-group two-images-pc-m">
+                <div class="image-wrapper">
+                    <div class="image-title">PC</div>
+                    <img src="${pcImage}" alt="PC Image">
+                </div>
+                <div class="image-wrapper">
+                    <div class="image-title">M</div>
+                    <img src="${mImage}" alt="Mobile Image">
+                </div>
+            </div>
+        `;
+    }
+    
+    detailContainer.innerHTML = imagesHtml;
+
+    // mobile에서 detail에 패딩 없는 스타일로 처리
+    detailOverlay.classList.remove('mobile-exhibition-overlay');
+    if (!isWideScreen()) {
+       detailOverlay.classList.add('mobile-no-padding-overlay');
+    } else {
+       detailOverlay.classList.remove('mobile-no-padding-overlay');
+    }
+
+    detailOverlay.style.display = 'flex';
+    document.body.classList.add('no-scroll');
+}
+
+// 일반 팝업 닫기 버튼
+generalCloseBtn.addEventListener('click', closeAllPopups);
+generalOverlay.addEventListener('click', (event) => {
+    if (event.target === generalOverlay) {
+        closeAllPopups();
+    }
+});
+
+// 기획전 목록 팝업 닫기 버튼
+listCloseBtn.addEventListener('click', closeAllPopups);
+listOverlay.addEventListener('click', (event) => {
+    if (event.target === listOverlay) {
+        closeAllPopups();
+    }
+});
+
+// 기획전 상세 팝업 닫기 버튼 (목록으로 돌아감)
+detailCloseBtn.addEventListener('click', () => {
+   detailOverlay.style.display = 'none';
+   openExhibitionPagePopup();
+});
+detailOverlay.addEventListener('click', (event) => {
+    if (event.target === detailOverlay) {
+        detailOverlay.style.display = 'none';
+        openExhibitionPagePopup();
+    }
 });
 
 const video = document.getElementById('myVideo');
-
 const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      video.play();
-    } else {
-      video.pause();
-    }
-  });
-}, { threshold: 0.5 }); // 화면의 50% 이상 보이면 실행
-
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    });
+}, { threshold: 0.5 });
 observer.observe(video);
+
+document.querySelectorAll(".model-viewer-item").forEach(viewer => {
+    let isHovering = false;
+    let maxRotation = 30; // 좌우 제한 각도 (±30도)
+
+    viewer.addEventListener("mouseenter", () => {
+        isHovering = true;
+    });
+
+    viewer.addEventListener("mouseleave", () => {
+        isHovering = false;
+        viewer.cameraOrbit = `0deg 90deg auto`; // 정면으로 복귀
+    });
+
+    viewer.addEventListener("mousemove", (event) => {
+        if (isHovering) {
+            // 마우스 위치 → viewer 폭 대비 비율 (-1 ~ 1)
+            const rect = viewer.getBoundingClientRect();
+            const xRatio = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+
+            // 비율을 각도로 변환 (최대 ±3도)
+            const rotation = xRatio * maxRotation;
+
+            viewer.cameraOrbit = `${rotation}deg 90deg auto`;
+        }
+    });
+});
 
 </script>
 
