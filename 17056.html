@@ -1,0 +1,256 @@
+
+<style>
+    .wrapper{
+        width: 100%;
+        position: relative;
+    }
+    .bott_img{
+	 margin: 0 auto;
+   	 width: 1900px;
+   	 position: relative;
+   	 overflow: hidden;
+    }
+    .fade_wrap{
+        width: 943px;
+        height: 941px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        overflow: hidden;
+    }
+    .fade_img{
+        position: absolute;
+        top: 0;
+        transform: scale(1.05);
+    }
+    .fade_img_01{
+        opacity: 1;
+        animation: fadeImg01 14s infinite linear ;
+        -webkit-animation: fadeImg01 14s infinite linear ;
+    }
+    .fade_img_02{
+        opacity: 0;
+        animation: fadeImg02 14s infinite linear ;
+        -webkit-animation: fadeImg02 14s infinite linear ;
+    }
+    .fade_img_03{
+        opacity: 0;
+        animation: fadeImg03 14s infinite linear ;
+        -webkit-animation: fadeImg03 14s infinite linear ;
+    }
+    .fade_img_04{
+        opacity: 0;
+        animation: fadeImg04 14s infinite linear ;
+        -webkit-animation: fadeImg04 14s infinite linear ;
+    }
+    @keyframes fadeImg01{
+        
+        0%{
+          transform: scale(1);
+        }
+        15%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        25%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        90%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+        100%{
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    @-webkit-keyframes fadeImg01{
+        
+        0%{
+          transform: scale(1);
+        }
+        15%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        25%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        90%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+        100%{
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    @keyframes fadeImg02{ 
+        0%{
+          transform: scale(1.05);
+        }
+        15%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        25%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        40%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        50%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    @-webkit-keyframes fadeImg02{ 
+        0%{
+          transform: scale(1.05);
+        }
+        15%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        25%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        40%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        50%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    @keyframes fadeImg03{
+        40%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        50%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        65%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        75%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    @-webkit-keyframes fadeImg03{
+        40%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        50%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        65%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        75%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    @keyframes fadeImg04{
+        65%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        75%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        90%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        100%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    @-webkit-keyframes fadeImg04{
+        65%{
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        75%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        90%{
+            opacity: 1;
+            transform: scale(1);
+        }
+        100%{
+          opacity: 0;
+          transform: scale(1.05);
+        }
+    }
+    
+    .fix_txt{
+        position: absolute;
+        top: 0;
+        z-index: 1;
+    }
+    
+</style>
+
+
+
+<div style="margin: 0 auto; width: 1900px; position: relative; overflow: hidden;">
+    <div class="wrapper">
+        <div class="fix_bg">
+            <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_bg.jpg" alt="">
+        </div>
+        <div class="fade_wrap">
+            <div class="fade_img fade_img_01">
+                <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_s_01.jpg" alt="">
+            </div>
+            <div class="fade_img fade_img_02">
+                <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_s_02.jpg" alt="">
+            </div>
+            <div class="fade_img fade_img_03">
+                <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_s_03.jpg" alt="">
+            </div>
+            <div class="fade_img fade_img_04">
+                <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_s_04.jpg" alt="">
+            </div>
+        </div>
+        <div class="fix_txt">
+            <img src="https://img.fashionplus.co.kr/mall/event/230724/17056_fix.png" alt="">
+        </div>
+    </div>
+</div>
+
+    <div class="bott_img">
+        <i class="mm_image-banner">
+		<img src="https://img.fashionplus.co.kr/mall/event/230724/17056_b.jpg" alt="" usemap="#dev_promotion-map-1">
+        </i>
+        <!--// 이미지 -->
+        <!-- 맵코드 -->
+        <map name="dev_promotion-map-1">
+            <area href="https://www.fashionplus.co.kr/goods/detail/107803639" shape="rect" target="_blank" coords="575,1042,1360,1523" alt="" />
+            <area href="https://www.fashionplus.co.kr/goods/detail/220940320" shape="rect" target="_blank" coords="540,1662,1325,2142" alt="" />
+            <area href="https://www.fashionplus.co.kr/goods/detail/209197647" shape="rect" target="_blank" coords="576,2280,1360,2762" alt="" />
+            <area href="https://www.fashionplus.co.kr/goods/detail/227711653" shape="rect" target="_blank" coords="540,2902,1325,3383" alt="" />
+            <area href="https://www.fashionplus.co.kr/goods/detail/195977999" shape="rect" target="_blank" coords="575,3522,1359,4002" alt="" />
+        </map>
+</div>
+
+
+

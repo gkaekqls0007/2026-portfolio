@@ -1,0 +1,107 @@
+
+<style>
+    .scroll_contents{
+        position: absolute;
+        z-index: 1;
+        top: 980px;
+        left: 428px;
+        width: 423px;
+        height: 69px;
+        
+    }
+    
+    .scroll_master{
+    }
+      /* 스크롤되며 텍스트 변경 */
+        .container-scroller{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 423px;
+            height: 69px; /* 텍스트 변경되는 박스 높이 */
+            overflow: hidden;
+        }
+        .container-scroller_item{
+            display: block;
+            height: 69px;
+            line-height: 69px;
+            animation: scroll 10s cubic-bezier(0.645,0.045,0.25,1) infinite 0.7s;
+            -webkit-animation: scroll 10s cubic-bezier(0.645,0.045,0.25,1) infinite 0.7s;
+        }
+        
+        @keyframes scroll{
+            
+            /* scroller_item에 지정해준 height+padding 만큼 더해서 값 지정 */
+            
+            0%{
+                transform: translateY(0px);
+            }
+            33.33333333333%{
+                transform: translateY(-69px);
+            }
+            66.66666666666%{
+                transform: translateY(-138px);
+            }
+            100%{
+                transform: translateY(-207px);
+            }
+            
+        }
+        @-webkit-keyframes scroll{
+            
+            /* scroller_item에 지정해준 height+padding 만큼 더해서 값 지정 */
+            
+            0%{
+                transform: translateY(0px);
+            }
+            33.33333333333%{
+                transform: translateY(-69px);
+            }
+            66.66666666666%{
+                transform: translateY(-138px);
+            }
+            100%{
+                transform: translateY(-207px);
+            }
+            
+        }
+    
+    .fix_bg{
+        width: 1280px;
+        position: relative;
+    }
+
+</style>
+
+
+
+<div style="margin: 0 auto; width: 1280px; position: relative;">
+    <i class="mm_image-banner fix_bg">
+		<img src="https://img.fashionplus.co.kr/mall/event/230227/16453_bg.jpg" alt="" usemap="#dev_promotion-map-1">
+	</i>
+	<!--// 이미지 -->
+	<!-- 맵코드 -->
+	<map name="dev_promotion-map-1">
+        <area href="https://www.fashionplus.co.kr/goods/detail/159619016" shape="rect" target="_blank" coords="358,1523,922,1925" alt="" />
+        <area href="https://www.fashionplus.co.kr/goods/detail/227651290" shape="rect" target="_blank" coords="331,2014,923,2414" alt="" />
+    	<area href="https://www.fashionplus.co.kr/goods/detail/227652893" shape="rect" target="_blank" coords="355,2491,948,2907" alt="" />
+	</map>
+        <div class="scroll_contents">
+                <h1 class="scroll_master">
+                    <div class="container-scroller">
+                        <div class="container-scroller_item">
+                            <div><img src="https://img.fashionplus.co.kr/mall/event/230227/16453_rTxt_01.png" alt=""></div>
+                        </div>
+                        <div class="container-scroller_item">
+                            <div><img src="https://img.fashionplus.co.kr/mall/event/230227/16453_rTxt_02.png" alt=""></div>
+                        </div>
+                        <div class="container-scroller_item">
+                            <div><img src="https://img.fashionplus.co.kr/mall/event/230227/16453_rTxt_03.png" alt=""></div>
+                        </div>
+                        <div class="container-scroller_item">
+                            <div><img src="https://img.fashionplus.co.kr/mall/event/230227/16453_rTxt_01.png" alt=""></div>
+                        </div>
+                    </div>
+                </h1>
+        </div>
+    </div>
