@@ -297,7 +297,8 @@
             },
 		});
         
-        // 01버튼 클릭 시
+        $(document).ready(function(){
+    // 01버튼 클릭 시
     $("#key_butt_01").on("click", function(){
         $(".key_img_01").css("z-index", "1");
         $(".key_img_02").css("z-index", "0");
@@ -317,4 +318,5 @@
         $(".key_img_02").css("z-index", "0");
         $(".key_img_03").css("z-index", "1");
     });
+});
 	</script>
