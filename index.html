@@ -692,11 +692,11 @@ function openGeneralPopup(imageSrc) {
         generalOverlay.classList.remove('mobile-no-padding-overlay');
     }
 
-    // [수정됨] 기본 이미지 태그 생성
+    // 기본 이미지 태그 생성
     let contentHtml = `<img src="${finalImageSrc}" alt="Popup Image">`;
 
-    // [추가됨] assets/SO_detail.jpg 이미지일 경우에만 링크 버튼 추가
-    if (imageSrc.includes('SO_detail.jpg')) {
+    // [수정됨] assets/SO_detail.jpg 이미지이면서 동시에 'PC/태블릿(isWideScreen)'일 때만 버튼 추가
+    if (imageSrc.includes('SO_detail.jpg') && isWideScreen()) {
         contentHtml += `
             <a href="230821_19236.html" target="_blank" style="
                 position: fixed;
@@ -723,7 +723,7 @@ function openGeneralPopup(imageSrc) {
         `;
     }
 
-    // [수정됨] HTML 적용
+    // HTML 적용
     generalImageContainer.innerHTML = contentHtml;
     
     generalOverlay.style.display = 'flex';
