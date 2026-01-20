@@ -404,7 +404,7 @@ body::-webkit-scrollbar-thumb:hover {
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
-	margin-bottom: 100px;
+        margin-bottom: 100px;
     }
     .model-viewer-item {
         width: 45vw;
@@ -432,7 +432,7 @@ body::-webkit-scrollbar-thumb:hover {
     /* 모든 팝업의 닫기 버튼 공통 스타일 */
     .popup-close {
         top: 20px;
-    right: 20px;
+        right: 20px;
     }
     
     /* 기획전 팝업 전용 스타일 */
@@ -695,7 +695,7 @@ function openGeneralPopup(imageSrc) {
     // 기본 이미지 태그 생성
     let contentHtml = `<img src="${finalImageSrc}" alt="Popup Image">`;
 
-    // [수정됨] assets/SO_detail.jpg 이미지이면서 동시에 'PC/태블릿(isWideScreen)'일 때만 버튼 추가
+    // [SO_detail.jpg] 이미지이면서 동시에 'PC/태블릿(isWideScreen)'일 때만 버튼 추가
     if (imageSrc.includes('SO_detail.jpg') && isWideScreen()) {
         contentHtml += `
             <a href="230821_19236.html" target="_blank" style="
@@ -997,6 +997,43 @@ function openExhibitionImagePopup(imageNumber) {
                 </div>
             </div>
         `;
+    }
+
+    // [추가된 부분] 3번, 5번 이미지를 PC/태블릿에서 클릭 시 각각 HTML 페이지 연결 버튼 추가
+    if (isWideScreen()) {
+        let linkUrl = '';
+        if (imageNumber === '3') {
+            linkUrl = '17056.html';
+        } else if (imageNumber === '5') {
+            linkUrl = '16453.html';
+        }
+
+        if (linkUrl) {
+            imagesHtml += `
+                <a href="${linkUrl}" target="_blank" style="
+                    position: fixed;
+                    bottom: 50px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: rgba(0, 0, 0, 0.85);
+                    color: #fff;
+                    padding: 15px 30px;
+                    text-decoration: none;
+                    border-radius: 50px;
+                    font-weight: bold;
+                    font-size: 16px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    z-index: 2000;
+                    transition: transform 0.2s, background-color 0.2s;
+                    white-space: nowrap;
+                    cursor: pointer;
+                " 
+                onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" 
+                onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">
+                    HTML 페이지 확인하기 &rarr;
+                </a>
+            `;
+        }
     }
     
     detailContainer.innerHTML = imagesHtml;
