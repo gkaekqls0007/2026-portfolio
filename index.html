@@ -608,7 +608,7 @@ body::-webkit-scrollbar-thumb:hover {
 
         // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(150, 50, 200); 
+        camera.position.set(150, 0, 0); 
 
         // 3. 렌더러 설정 (고화질, 필름 톤매핑)
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -636,10 +636,10 @@ body::-webkit-scrollbar-thumb:hover {
   	  scene.add(ambientLight);
 
 	    // (2) 핀 조명 1 (왼쪽 위에서 중앙으로)
-  	  const spotLight1 = new THREE.SpotLight(0xffffff, 200); // 강도 200 (매우 밝음)
+  	  const spotLight1 = new THREE.SpotLight(0xffffff, 200); // 강도 100 (매우 밝음)
   	  spotLight1.position.set(-30, 150, 0); // 위치: 왼쪽, 높게, 중앙
-   	 spotLight1.angle = 0.3; // 빛이 퍼지는 각도 (작을수록 핀 조명처럼 좁아짐)
-  	  spotLight1.penumbra = 0.3; // 빛의 테두리를 부드럽게
+   	 spotLight1.angle = 0.1; // 빛이 퍼지는 각도 (작을수록 핀 조명처럼 좁아짐)
+  	  spotLight1.penumbra = 0.5; // 빛의 테두리를 부드럽게
  	   spotLight1.decay = 1; // 거리에 따른 빛 감쇠
   	  spotLight1.distance = 500; // 빛 도달 거리
    	 spotLight1.castShadow = true;
@@ -650,10 +650,10 @@ body::-webkit-scrollbar-thumb:hover {
  	   scene.add(spotLight1.target);
 
   	  // (3) 핀 조명 2 (오른쪽 위에서 중앙으로)
-  	  const spotLight2 = new THREE.SpotLight(0xffffff, 200); // 강도 200
+  	  const spotLight2 = new THREE.SpotLight(0xffffff, 200); // 강도 100
    	 spotLight2.position.set(30, 150, 0); // 위치: 오른쪽, 높게, 중앙
-  	  spotLight2.angle = 0.3; 
-  	  spotLight2.penumbra = 0.3; 
+  	  spotLight2.angle = 0.1; 
+  	  spotLight2.penumbra = 0.5; 
 	    spotLight2.decay = 1; 
  	   spotLight2.distance = 500; 
    	 spotLight2.castShadow = true;
