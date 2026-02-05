@@ -598,60 +598,74 @@ body::-webkit-scrollbar-thumb:hover {
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xd8d8d8); 
 
-        // 2. 카메라 설정
+        // 2. 카메라 설정 (정면 뷰로 수정함)
+        // Y축(높이)을 0으로 낮추고, Z축(거리)만 조절하여 정면을 바라보게 함
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(0, 50, 300); // 초기 위치
+        camera.position.set(0, 0, 180); 
 
         // 3. 렌더러 설정
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        
+        // [중요] 텍스처 색감이 칙칙하지 않게 보정
+        renderer.outputColorSpace = THREE.SRGBColorSpace; 
+        
         renderer.shadowMap.enabled = true;
         container.appendChild(renderer.domElement);
 
         // 4. 컨트롤 설정
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.enableZoom = true; // 줌 허용
+        controls.enableZoom = true; 
+        // controls.autoRotate = true; // 자동 회전이 필요하면 주석 해제
 
-        // 5. 조명 설정
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+        // 5. 조명 설정 (텍스처가 잘 보이도록 밝게 조정)
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xaaaaaa, 1.5); // 전체적으로 밝게
         hemiLight.position.set(0, 200, 0);
         scene.add(hemiLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-        dirLight.position.set(100, 200, 100);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2); // 그림자용 조명
+        dirLight.position.set(100, 100, 100);
         dirLight.castShadow = true;
         scene.add(dirLight);
 
         // 6. FBX 모델 로드
         const loader = new FBXLoader();
+        
+        // [수정됨] 텍스처 파일 경로 지정 (현재 폴더 ./ 기준)
+        // 주의: 텍스처 이미지 파일들(jpg, png 등)이 html 파일과 같은 폴더에 있어야 합니다.
+        loader.setPath('./'); 
+
         loader.load(
-            './portfolio_main.fbx', 
+            'portfolio_main.fbx', 
             function (object) {
                 
-                // [수정됨] 모델 중앙 정렬 및 크기 대폭 확대
+                // 중앙 정렬 계산
                 const box = new THREE.Box3().setFromObject(object);
-                const size = box.getSize(new THREE.Vector3());
                 const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
 
-                // 중앙 이동
+                // 모델을 원점(0,0,0)으로 이동
                 object.position.x += (object.position.x - center.x);
                 object.position.y += (object.position.y - center.y);
                 object.position.z += (object.position.z - center.z);
 
-                // 크기 키우기 (화면을 꽉 채우도록)
+                // 크기 조정 (화면에 꽉 차게)
                 const maxAxis = Math.max(size.x, size.y, size.z);
-                // 기존 150 -> 400으로 목표 크기 대폭 상향
-                const targetSize = 400; 
+                const targetSize = 350; // 모델 크기 (이 숫자를 키우면 더 커집니다)
                 const scaleFactor = targetSize / maxAxis;
                 object.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-                // 그림자
+                // 그림자 및 재질 체크
                 object.traverse(function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        // 텍스쳐가 어둡다면 메탈 재질을 줄여줌
+                        if (child.material) {
+                            child.material.side = THREE.DoubleSide;
+                        }
                     }
                 });
 
