@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta property="og:description" content="작은 시작도 끝까지 책임지는 디자이너 함다빈입니다." />
 <title>Dabin | Portfolio</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
 
 <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -496,7 +500,7 @@ body::-webkit-scrollbar-thumb:hover {
 <body>
 
 <div class="container">
-    <div id="three-canvas-container" style="width: 100%; height: 600px; display: block; margin-top: 20px; margin-bottom: 20px; position: relative; background-color: #d8d8d8;">
+    <div id="three-canvas-container" style="width: 100%; max-width: 100%; height: 100vh; display: block; margin-top: 20px; margin-bottom: 20px; position: relative; background-color: #d8d8d8; z-index: 1;">
         <div id="loading-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-size: 14px;">Loading 3D Model...</div>
     </div>
     <div class="pc-image-wrapper">
@@ -588,8 +592,10 @@ body::-webkit-scrollbar-thumb:hover {
 <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'; // 압축 해제용
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+    // GSAP 플러그인 등록
+    gsap.registerPlugin(ScrollTrigger);
 
     const container = document.getElementById('three-canvas-container');
     const loadingText = document.getElementById('loading-text');
@@ -608,18 +614,18 @@ body::-webkit-scrollbar-thumb:hover {
 
         // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(20, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(150, 50, 0); 
+        camera.position.set(150, 100, 100); 
 
         // 3. 렌더러 설정 (고화질, 필름 톤매핑)
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.outputColorSpace = THREE.SRGBColorSpace; 
-        renderer.toneMapping = THREE.ACESFilmicToneMapping; 
-        renderer.toneMappingExposure = 1.0; 
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
-        container.appendChild(renderer.domElement);
+ 	 renderer.setSize(container.clientWidth, container.clientHeight);
+   	 renderer.setPixelRatio(window.devicePixelRatio);
+   	 renderer.outputColorSpace = THREE.SRGBColorSpace;
+   	 renderer.shadowMap.enabled = true;
+    	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    	container.appendChild(renderer.domElement);
+
+    // [중요] OrbitControls 제거됨 (마우스로 움직이지 않게 고정)
 
         // 4. 컨트롤 설정
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -627,108 +633,120 @@ body::-webkit-scrollbar-thumb:hover {
         // 카메라가 항상 (0,0,0)을 바라보게 고정
         controls.target.set(0, 0, 0);
 
-        // 5. 조명 설정 (요청하신 스튜디오 세팅)
-        
-	// (1) 아주 약한 전체 조명 (너무 새카매서 형태를 못 알아보는 것 방지)
-   	 // 아예 안 보이게 하려면 intensity를 0으로 줄이세요.
-   	 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); 
-  	  scene.add(ambientLight);
-
-	    // (2) 핀 조명 1 (왼쪽 위에서 중앙으로)
-  	  const spotLight1 = new THREE.SpotLight(0xffffff, 200); // 강도 50 (매우 밝음)
-  	  spotLight1.position.set(-40, 150, 0); // 위치: 왼쪽, 높게, 중앙
-   	 spotLight1.angle = 0.03; // 빛이 퍼지는 각도 (작을수록 핀 조명처럼 좁아짐)
-  	  spotLight1.penumbra = 0.9; // 빛의 테두리를 부드럽게
- 	   spotLight1.decay = 1; // 거리에 따른 빛 감쇠
-  	  spotLight1.distance = 500; // 빛 도달 거리
-   	 spotLight1.castShadow = true;
+        // 5. Lighting (초기 상태: 꺼짐)
+    // 조명을 변수에 담아서 GSAP가 제어할 수 있게 함
     
-  	  // 조명이 (0,0,0)을 바라보게 설정
-  	  spotLight1.target.position.set(0, 0, 0);
-   	 scene.add(spotLight1);
- 	   scene.add(spotLight1.target);
+    // (1) Ambient: 아주 미미하게 형태만
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0); // 처음엔 0
+    scene.add(ambientLight);
 
-  	  // (3) 핀 조명 2 (오른쪽 위에서 중앙으로)
-  	  const spotLight2 = new THREE.SpotLight(0xffffff, 200); // 강도 50
-   	 spotLight2.position.set(40, 150, 0); // 위치: 오른쪽, 높게, 중앙
-  	  spotLight2.angle = 0.03; 
-  	  spotLight2.penumbra = 0.9; 
-	    spotLight2.decay = 1; 
- 	   spotLight2.distance = 500; 
-   	 spotLight2.castShadow = true;
+    // (2) SpotLight 1 (왼쪽)
+    const spotLight1 = new THREE.SpotLight(0xffffff, 0); // 처음엔 0 (꺼짐)
+    spotLight1.position.set(-50, 150, 50);
+    spotLight1.angle = 0.01; spotLight1.penumbra = 0.9;
+    spotLight1.castShadow = true;
+    scene.add(spotLight1);
 
-    	spotLight2.target.position.set(0, 0, 0);
-   	 scene.add(spotLight2);
-   	 scene.add(spotLight2.target);
+    // (3) SpotLight 2 (오른쪽)
+    const spotLight2 = new THREE.SpotLight(0xffffff, 0); // 처음엔 0 (꺼짐)
+    spotLight2.position.set(50, 150, 50);
+    spotLight2.angle = 0.01; spotLight2.penumbra = 0.9;
+    spotLight2.castShadow = true;
+    scene.add(spotLight2);
 
-        // 6. GLB 모델 로드 (Draco 압축 지원)
-        const loader = new GLTFLoader();
+        // 6. Loader & GSAP Animation
+    const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+    loader.setPath('./');
+
+    loader.load('portfolio_main.glb', function (gltf) {
+        const object = gltf.scene;
+
+        // 모델 중앙 정렬 및 크기
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        object.position.x += (object.position.x - center.x);
+        object.position.y += (object.position.y - center.y);
+        object.position.z += (object.position.z - center.z);
         
-        // Draco 디코더 설정
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        loader.setDRACOLoader(dracoLoader);
+        // 바닥 높이 맞춤
+        const adjustedBox = new THREE.Box3().setFromObject(object);
+        floor.position.y = adjustedBox.min.y;
 
-        loader.setPath('./'); 
+        // 크기 600
+        const maxAxis = Math.max(size.x, size.y, size.z);
+        const scaleFactor = 600 / maxAxis;
+        object.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-        loader.load(
-            'portfolio_main.glb', 
-            function (gltf) {
-                const object = gltf.scene;
-
-                // [중요] 크기 및 위치 자동 보정 (화면 중앙에 꽉 차게)
-                const box = new THREE.Box3().setFromObject(object);
-                const size = box.getSize(new THREE.Vector3());
-                const center = box.getCenter(new THREE.Vector3());
-
-                // 모델을 (0,0,0) 중심으로 이동
-                object.position.x += (object.position.x - center.x);
-                object.position.y += (object.position.y - center.y);
-                object.position.z += (object.position.z - center.z);
-
-                // 화면 크기에 맞춰 스케일 조정 (목표 크기 250)
-                const maxAxis = Math.max(size.x, size.y, size.z);
-                const targetSize = 250; 
-                const scaleFactor = targetSize / maxAxis;
-                object.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-                object.traverse(function (child) {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        // 텍스쳐가 있으면 양면 렌더링
-                        if (child.material) {
-                            child.material.side = THREE.DoubleSide;
-                        }
-                    }
-                });
-
-                scene.add(object);
-                
-                if(loadingText) loadingText.style.display = 'none';
-            },
-            undefined,
-            function (error) {
-                console.error(error);
-                if(loadingText) loadingText.innerText = 'Error loading model';
+        object.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                if(child.material) child.material.side = THREE.DoubleSide;
             }
-        );
-
-        // 7. 반응형
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
+        scene.add(object);
+        spotLight1.target = object;
+        spotLight2.target = object;
+        if(loadingText) loadingText.style.display = 'none';
+
+        // ============================================
+        // [GSAP] 스크롤 애니메이션 설정 (핵심 부분)
+        // ============================================
+        
+        // 타임라인 생성: 스크롤에 맞춰 순서대로 실행
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#three-canvas-wrapper", // 이 영역이 화면에 보이면
+                start: "top top", // 화면 맨 위에서 시작
+                end: "+=1500",    // 1500px 만큼 스크롤하는 동안 애니메이션 진행
+                scrub: 1,         // 스크롤을 되돌리면 애니메이션도 되돌아감 (부드럽게)
+                pin: true,        // 화면을 고정시킴 (줌인 효과 동안)
+            }
+        });
+
+        // 1단계: 카메라 줌인 (멀리서 가까이)
+        tl.to(camera.position, {
+            z: 200, // 최종 목표 거리 (원하는 만큼 수정 가능)
+            duration: 5,
+            ease: "power2.inOut"
+        });
+
+        // 2단계: 조명 깜빡임 (Flicker) -> 켜짐
+        // 카메라가 거의 다 왔을 때 쯤(타임라인 끝부분) 조명 켜기
+        tl.to([spotLight1, spotLight2], { intensity: 50, duration: 0.1 }, "-=1.5") // 살짝 켜짐
+          .to([spotLight1, spotLight2], { intensity: 0, duration: 0.1 })  // 꺼짐
+          .to([spotLight1, spotLight2], { intensity: 100, duration: 0.1 }) // 밝게 켜짐
+          .to([spotLight1, spotLight2], { intensity: 20, duration: 0.1 })  // 흐려짐
+          .to([spotLight1, spotLight2], { intensity: 150, duration: 1 });  // 최종 밝기 (켜짐 유지)
+        
+        // Ambient Light도 같이 살짝 켜줌
+        tl.to(ambientLight, { intensity: 0.05, duration: 1 }, "<");
+
+
+    }, undefined, function (error) {
+        console.error(error);
+        if(loadingText) loadingText.innerText = 'Error';
+    });
+
+    // Resize
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera); // controls.update() 삭제됨
     }
+    animate();
 </script>
+
 <script>
 let lastScrollPosition = 0;
 let popupScrollPosition = 0;
