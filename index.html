@@ -588,8 +588,7 @@ body::-webkit-scrollbar-thumb:hover {
 <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    // [추가됨] 압축 해제용 로더
-    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'; 
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'; // 압축 해제용
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     const container = document.getElementById('three-canvas-container');
@@ -602,9 +601,9 @@ body::-webkit-scrollbar-thumb:hover {
 
         // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(0, 0, 90); 
+        camera.position.set(0, 0, 270); 
 
-        // 3. 렌더러 설정
+        // 3. 렌더러 설정 (고화질, 필름 톤매핑)
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -620,7 +619,7 @@ body::-webkit-scrollbar-thumb:hover {
         controls.enableDamping = true;
         controls.enableZoom = true; 
 
-        // 5. 조명 설정 (스튜디오 세팅)
+        // 5. 조명 설정 (요청하신 스튜디오 세팅)
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
@@ -642,9 +641,8 @@ body::-webkit-scrollbar-thumb:hover {
         // 6. GLB 모델 로드 (Draco 압축 지원)
         const loader = new GLTFLoader();
         
-        // [중요] DRACOLoader 설정
+        // Draco 디코더 설정
         const dracoLoader = new DRACOLoader();
-        // 압축 해제에 필요한 라이브러리 경로 (CDN 사용)
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
         loader.setDRACOLoader(dracoLoader);
 
@@ -655,34 +653,43 @@ body::-webkit-scrollbar-thumb:hover {
             function (gltf) {
                 const object = gltf.scene;
 
-                // 중복 방지
+                // [중요] 중복 방지 코드 (여기가 핵심입니다!)
+                // 기존에 'PortfolioModel'이라는 이름의 모델이 있으면 제거합니다.
                 const oldModel = scene.getObjectByName('PortfolioModel');
-                if (oldModel) scene.remove(oldModel);
-                object.name = 'PortfolioModel';
+                if (oldModel) {
+                    scene.remove(oldModel);
+                }
+                object.name = 'PortfolioModel'; // 새 모델에 이름표 부착
 
-                // 중앙 정렬 및 크기 조정
+                // 중앙 정렬 및 크기 계산
                 const box = new THREE.Box3().setFromObject(object);
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
 
+                // 모델 위치 보정
                 object.position.x += (object.position.x - center.x);
                 object.position.y += (object.position.y - center.y);
                 object.position.z += (object.position.z - center.z);
 
+                // 크기 조정 (화면 꽉 차게)
                 const maxAxis = Math.max(size.x, size.y, size.z);
                 const targetSize = 350; 
                 const scaleFactor = targetSize / maxAxis;
                 object.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
+                // 그림자 및 재질 설정
                 object.traverse(function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        if (child.material) child.material.side = THREE.DoubleSide;
+                        if (child.material) {
+                            child.material.side = THREE.DoubleSide;
+                        }
                     }
                 });
 
                 scene.add(object);
+                
                 if(loadingText) loadingText.style.display = 'none';
             },
             undefined,
@@ -707,7 +714,6 @@ body::-webkit-scrollbar-thumb:hover {
         animate();
     }
 </script>
-
 <script>
 let lastScrollPosition = 0;
 let popupScrollPosition = 0;
