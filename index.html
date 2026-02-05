@@ -606,7 +606,7 @@ body::-webkit-scrollbar-thumb:hover {
         // 2. 카메라 설정 (정면 뷰로 수정함)
         // Y축(높이)을 0으로 낮추고, Z축(거리)만 조절하여 정면을 바라보게 함
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(0, 0, 0); 
+        camera.position.set(0, 0, 90); 
 
         // 3. 렌더러 설정
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
