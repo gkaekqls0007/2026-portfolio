@@ -595,13 +595,20 @@ body::-webkit-scrollbar-thumb:hover {
     const loadingText = document.getElementById('loading-text');
 
     if (container) {
+
+	while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        // 로딩 텍스트 다시 추가
+        if(loadingText) container.appendChild(loadingText);
+
         // 1. 장면 생성
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xd8d8d8); 
 
         // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(0, 0, 270); 
+        camera.position.set(0, 0, -90); 
 
         // 3. 렌더러 설정 (고화질, 필름 톤매핑)
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -618,6 +625,8 @@ body::-webkit-scrollbar-thumb:hover {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.enableZoom = true; 
+        // 카메라가 항상 (0,0,0)을 바라보게 고정
+        controls.target.set(0, 0, 0);
 
         // 5. 조명 설정 (요청하신 스튜디오 세팅)
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -653,35 +662,27 @@ body::-webkit-scrollbar-thumb:hover {
             function (gltf) {
                 const object = gltf.scene;
 
-                // [중요] 중복 방지 코드 (여기가 핵심입니다!)
-                // 기존에 'PortfolioModel'이라는 이름의 모델이 있으면 제거합니다.
-                const oldModel = scene.getObjectByName('PortfolioModel');
-                if (oldModel) {
-                    scene.remove(oldModel);
-                }
-                object.name = 'PortfolioModel'; // 새 모델에 이름표 부착
-
-                // 중앙 정렬 및 크기 계산
+                // [중요] 크기 및 위치 자동 보정 (화면 중앙에 꽉 차게)
                 const box = new THREE.Box3().setFromObject(object);
-                const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
 
-                // 모델 위치 보정
+                // 모델을 (0,0,0) 중심으로 이동
                 object.position.x += (object.position.x - center.x);
                 object.position.y += (object.position.y - center.y);
                 object.position.z += (object.position.z - center.z);
 
-                // 크기 조정 (화면 꽉 차게)
+                // 화면 크기에 맞춰 스케일 조정 (목표 크기 250)
                 const maxAxis = Math.max(size.x, size.y, size.z);
-                const targetSize = 350; 
+                const targetSize = 250; 
                 const scaleFactor = targetSize / maxAxis;
                 object.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-                // 그림자 및 재질 설정
                 object.traverse(function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        // 텍스쳐가 있으면 양면 렌더링
                         if (child.material) {
                             child.material.side = THREE.DoubleSide;
                         }
