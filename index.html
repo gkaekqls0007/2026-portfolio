@@ -594,13 +594,13 @@ body::-webkit-scrollbar-thumb:hover {
     const loadingText = document.getElementById('loading-text');
 
     if (container) {
-        // 1. 장면 생성
+        // 1. 장면 및 배경 설정
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xd8d8d8); // 배경색
+        scene.background = new THREE.Color(0xd8d8d8); 
 
         // 2. 카메라 설정
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
-        camera.position.set(0, 100, 250);
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
+        camera.position.set(0, 50, 300); // 초기 위치
 
         // 3. 렌더러 설정
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -612,26 +612,42 @@ body::-webkit-scrollbar-thumb:hover {
         // 4. 컨트롤 설정
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = false; // 스크롤 방해 방지
+        controls.enableZoom = true; // 줌 허용
 
         // 5. 조명 설정
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+        hemiLight.position.set(0, 200, 0);
+        scene.add(hemiLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
         dirLight.position.set(100, 200, 100);
         dirLight.castShadow = true;
         scene.add(dirLight);
 
-        // 6. 모델 로드
+        // 6. FBX 모델 로드
         const loader = new FBXLoader();
         loader.load(
-            './portfolio_main.fbx', // 변환한 FBX 파일명
+            './portfolio_main.fbx', 
             function (object) {
-                // 크기 조정 (필요 시 수정)
-                object.scale.set(0.01, 0.01, 0.01); 
+                
+                // [수정됨] 모델 중앙 정렬 및 크기 대폭 확대
+                const box = new THREE.Box3().setFromObject(object);
+                const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
 
+                // 중앙 이동
+                object.position.x += (object.position.x - center.x);
+                object.position.y += (object.position.y - center.y);
+                object.position.z += (object.position.z - center.z);
+
+                // 크기 키우기 (화면을 꽉 채우도록)
+                const maxAxis = Math.max(size.x, size.y, size.z);
+                // 기존 150 -> 400으로 목표 크기 대폭 상향
+                const targetSize = 400; 
+                const scaleFactor = targetSize / maxAxis;
+                object.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+                // 그림자
                 object.traverse(function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -640,22 +656,23 @@ body::-webkit-scrollbar-thumb:hover {
                 });
 
                 scene.add(object);
+                
                 if(loadingText) loadingText.style.display = 'none';
             },
-            undefined,
+            function (xhr) {
+                // 진행률
+            },
             function (error) {
-                console.error('An error happened', error);
+                console.error(error);
                 if(loadingText) loadingText.innerText = 'Error loading model';
             }
         );
 
-        // 7. 반응형 처리
+        // 7. 반응형
         window.addEventListener('resize', () => {
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            camera.aspect = width / height;
+            camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
+            renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
         function animate() {
