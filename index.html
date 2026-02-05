@@ -10,7 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
-
 <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 <script type="importmap">
     {
@@ -22,6 +21,9 @@
 </script>
 
 <style>
+
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #050505; font-family: Arial, sans-serif; }
+
 /* 공통 스타일 */
 body {
     margin: 0;
@@ -36,6 +38,28 @@ body {
 body.no-scroll {
     overflow: hidden;
 }
+
+/* 1. 3D 인트로 섹션 (스크롤 연출 공간) */
+    #three-canvas-container {
+        width: 100%;
+        height: 100vh; /* 화면 꽉 차게 */
+        position: relative;
+        overflow: hidden;
+        z-index: 10;
+    }
+
+    #three-canvas-container {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    #loading-text {
+        position: absolute; top: 50%; left: 50%; 
+        transform: translate(-50%, -50%); 
+        color: #fff; font-size: 1.2rem; pointer-events: none;
+    }
+
 
 /* 스크롤바 디자인 (Webkit 기반) */
 body::-webkit-scrollbar {
@@ -500,8 +524,8 @@ body::-webkit-scrollbar-thumb:hover {
 <body>
 
 <div class="container">
-    <div id="three-canvas-container" style="width: 100%; max-width: 100%; height: 100vh; display: block; position: relative; background-color: #d8d8d8; z-index: 1;">
-        <div id="loading-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-size: 14px;">Loading 3D Model...</div>
+    <div id="three-canvas-container" style="position: relative; background-color: #d8d8d8; z-index: 1;">
+        <div id="loading-text">Loading 3D Model...</div>
     </div>
     <div class="pc-image-wrapper">
         <img src="assets/profile_02.jpg" alt="Profile 02">
@@ -637,7 +661,7 @@ body::-webkit-scrollbar-thumb:hover {
     // 조명을 변수에 담아서 GSAP가 제어할 수 있게 함
     
     // (1) Ambient: 아주 미미하게 형태만
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0); // 처음엔 0
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.05); // 처음엔 0
     scene.add(ambientLight);
 
     // (2) SpotLight 1 (왼쪽)
@@ -706,15 +730,16 @@ body::-webkit-scrollbar-thumb:hover {
                 end: "+=1500",    // 1500px 만큼 스크롤하는 동안 애니메이션 진행
                 scrub: 1,         // 스크롤을 되돌리면 애니메이션도 되돌아감 (부드럽게)
                 pin: true,        // 화면을 고정시킴 (줌인 효과 동안)
+		anticipatePin: 1
             }
         });
 
         // 1단계: 카메라 줌인 (멀리서 가까이)
         tl.to(camera.position, {
-            z: 200, // 최종 목표 거리 (원하는 만큼 수정 가능)
+            z: -200, // 최종 목표 거리 (원하는 만큼 수정 가능)
             duration: 5,
             ease: "power2.inOut"
-        });
+        }, "zoom");
 
         // 2단계: 조명 깜빡임 (Flicker) -> 켜짐
         // 카메라가 거의 다 왔을 때 쯤(타임라인 끝부분) 조명 켜기
@@ -742,7 +767,8 @@ body::-webkit-scrollbar-thumb:hover {
 
     function animate() {
         requestAnimationFrame(animate);
-        renderer.render(scene, camera); // controls.update() 삭제됨
+        // controls.update() 없음 -> 마우스 조작 불가
+        renderer.render(scene, camera);
     }
     animate();
 </script>
