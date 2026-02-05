@@ -6,6 +6,17 @@
 <meta property="og:description" content="작은 시작도 끝까지 책임지는 디자이너 함다빈입니다." />
 <title>Dabin | Portfolio</title>
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+
+<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
+        }
+    }
+</script>
+
 <style>
 /* 공통 스타일 */
 body {
@@ -485,8 +496,10 @@ body::-webkit-scrollbar-thumb:hover {
 <body>
 
 <div class="container">
+    <div id="three-canvas-container" style="width: 100%; max-width: 1000px; height: 600px; display: block; margin-top: 20px; margin-bottom: 20px; position: relative; background-color: #d8d8d8;">
+        <div id="loading-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-size: 14px;">Loading 3D Model...</div>
+    </div>
     <div class="pc-image-wrapper">
-        <img src="assets/profile_01.jpg" alt="Profile 01">
         <img src="assets/profile_02.jpg" alt="Profile 02">
     </div>
     <div class="mob-image-wrapper">
@@ -571,6 +584,88 @@ body::-webkit-scrollbar-thumb:hover {
         <div id="exhibition-detail-container"></div>
     </div>
 </div>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'; 
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const container = document.getElementById('three-canvas-container');
+    const loadingText = document.getElementById('loading-text');
+
+    if (container) {
+        // 1. 장면 생성
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xd8d8d8); // 배경색
+
+        // 2. 카메라 설정
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
+        camera.position.set(0, 100, 250);
+
+        // 3. 렌더러 설정
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        // 4. 컨트롤 설정
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false; // 스크롤 방해 방지
+
+        // 5. 조명 설정
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(100, 200, 100);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // 6. 모델 로드
+        const loader = new FBXLoader();
+        loader.load(
+            './portfolio_main.fbx', // 변환한 FBX 파일명
+            function (object) {
+                // 크기 조정 (필요 시 수정)
+                object.scale.set(0.01, 0.01, 0.01); 
+
+                object.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                scene.add(object);
+                if(loadingText) loadingText.style.display = 'none';
+            },
+            undefined,
+            function (error) {
+                console.error('An error happened', error);
+                if(loadingText) loadingText.innerText = 'Error loading model';
+            }
+        );
+
+        // 7. 반응형 처리
+        window.addEventListener('resize', () => {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    }
+</script>
 
 <script>
 let lastScrollPosition = 0;
