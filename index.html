@@ -608,7 +608,7 @@ body::-webkit-scrollbar-thumb:hover {
 
         // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(90, 0, 100); 
+        camera.position.set(150, 0, 0); 
 
         // 3. 렌더러 설정 (고화질, 필름 톤매핑)
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
