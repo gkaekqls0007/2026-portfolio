@@ -587,24 +587,20 @@ body::-webkit-scrollbar-thumb:hover {
 
 <script type="module">
     import * as THREE from 'three';
-    import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'; 
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    // [추가됨] 압축 해제용 로더
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'; 
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     const container = document.getElementById('three-canvas-container');
     const loadingText = document.getElementById('loading-text');
 
-    // [중요] 중복 방지: 컨테이너 안에 이미 캔버스가 있다면 제거 (실수로 스크립트 두 번 넣었을 때 대비)
-    if (container.getElementsByTagName('canvas').length > 0) {
-        container.getElementsByTagName('canvas')[0].remove();
-    }
-
     if (container) {
-        // 1. 장면 및 배경 설정
+        // 1. 장면 생성
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xd8d8d8); 
 
-        // 2. 카메라 설정 (정면 뷰로 수정함)
-        // Y축(높이)을 0으로 낮추고, Z축(거리)만 조절하여 정면을 바라보게 함
+        // 2. 카메라 설정 (정면 뷰)
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
         camera.position.set(0, 0, 90); 
 
@@ -612,90 +608,84 @@ body::-webkit-scrollbar-thumb:hover {
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        
-        // [중요] 텍스처 색감이 칙칙하지 않게 보정
         renderer.outputColorSpace = THREE.SRGBColorSpace; 
-        
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; 
+        renderer.toneMappingExposure = 1.0; 
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
         container.appendChild(renderer.domElement);
 
         // 4. 컨트롤 설정
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.enableZoom = true; 
-        // controls.autoRotate = true; // 자동 회전이 필요하면 주석 해제
 
-        // 5. 조명 설정 (스튜디오 조명 세팅)
-        
-        // (1) 전체적으로 깔리는 부드러운 빛 (Ambient)
+        // 5. 조명 설정 (스튜디오 세팅)
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
-        // (2) 주광 (Key Light) - 오른쪽 위에서 강하게 때려주는 빛 (그림자 생성)
         const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
         keyLight.position.set(50, 100, 50);
         keyLight.castShadow = true;
-        // 그림자 퀄리티 높이기
         keyLight.shadow.mapSize.width = 2048;
         keyLight.shadow.mapSize.height = 2048;
         scene.add(keyLight);
 
-        // (3) 보조광 (Fill Light) - 왼쪽에서 그림자를 채워주는 약한 빛 (파란끼 살짝)
         const fillLight = new THREE.DirectionalLight(0xeef4ff, 0.6);
         fillLight.position.set(-50, 50, 50);
         scene.add(fillLight);
 
-        // (4) 후광 (Back Light) - 뒤에서 비춰서 배경과 분리시키는 빛
         const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
         backLight.position.set(0, 50, -100);
         scene.add(backLight);
 
-        // 6. FBX 모델 로드
-        const loader = new FBXLoader();
+        // 6. GLB 모델 로드 (Draco 압축 지원)
+        const loader = new GLTFLoader();
         
-        // [수정됨] 텍스처 파일 경로 지정 (현재 폴더 ./ 기준)
-        // 주의: 텍스처 이미지 파일들(jpg, png 등)이 html 파일과 같은 폴더에 있어야 합니다.
+        // [중요] DRACOLoader 설정
+        const dracoLoader = new DRACOLoader();
+        // 압축 해제에 필요한 라이브러리 경로 (CDN 사용)
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        loader.setDRACOLoader(dracoLoader);
+
         loader.setPath('./'); 
 
         loader.load(
-            'portfolio_main.fbx', 
-            function (object) {
-                
-                // 중앙 정렬 계산
+            'portfolio_main.glb', 
+            function (gltf) {
+                const object = gltf.scene;
+
+                // 중복 방지
+                const oldModel = scene.getObjectByName('PortfolioModel');
+                if (oldModel) scene.remove(oldModel);
+                object.name = 'PortfolioModel';
+
+                // 중앙 정렬 및 크기 조정
                 const box = new THREE.Box3().setFromObject(object);
                 const center = box.getCenter(new THREE.Vector3());
                 const size = box.getSize(new THREE.Vector3());
 
-                // 모델을 원점(0,0,0)으로 이동
                 object.position.x += (object.position.x - center.x);
                 object.position.y += (object.position.y - center.y);
                 object.position.z += (object.position.z - center.z);
 
-                // 크기 조정 (화면에 꽉 차게)
                 const maxAxis = Math.max(size.x, size.y, size.z);
-                const targetSize = 350; // 모델 크기 (이 숫자를 키우면 더 커집니다)
+                const targetSize = 350; 
                 const scaleFactor = targetSize / maxAxis;
                 object.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-                // 그림자 및 재질 체크
                 object.traverse(function (child) {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        // 텍스쳐가 어둡다면 메탈 재질을 줄여줌
-                        if (child.material) {
-                            child.material.side = THREE.DoubleSide;
-                        }
+                        if (child.material) child.material.side = THREE.DoubleSide;
                     }
                 });
 
                 scene.add(object);
-                
                 if(loadingText) loadingText.style.display = 'none';
             },
-            function (xhr) {
-                // 진행률
-            },
+            undefined,
             function (error) {
                 console.error(error);
                 if(loadingText) loadingText.innerText = 'Error loading model';
