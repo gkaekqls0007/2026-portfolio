@@ -40,57 +40,71 @@ body::-webkit-scrollbar-thumb:hover {
 /* 전체 컨테이너 */
 .container {
     width: 100%;
-    //max-width: 1920px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* --- [수정됨] 스크롤 애니메이션 스타일 시작 --- */
-.scroll-trigger {
-    width: 100%;
-    height: 350vh; /* 스크롤 길이 약간 증가 */
+/* --- [새로 추가됨] 조명 깜빡임 애니메이션 스타일 --- */
+.intro-visual-wrapper {
     position: relative;
-}
-
-.sticky-visual {
-    position: sticky;
-    top: 0;
     width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    background-color: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* 높이는 이미지 비율에 따라 자동 조절되도록 설정 */
+    display: block; 
 }
 
-.zoom-img {
+.intro-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 어두운 이미지 (항상 보임, 위치 잡아주는 역할) */
+.base-layer {
+    position: relative;
+    z-index: 1;
+}
+
+/* 밝은 이미지 (어두운 이미지 위에 겹침) */
+.effect-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    will-change: transform, opacity;
-    /* 부드러운 실시간 제어를 위해 transition 제거 */
-}
-
-.layer-a {
-    z-index: 1;
-}
-
-.layer-b {
     z-index: 2;
-    opacity: 0; /* 처음에는 숨김 */
+    opacity: 0; /* 처음에는 안 보임 */
+    /* 총 2.5초 동안 애니메이션 실행 (대기 1초 포함)하고 마지막 상태 유지 */
+    animation: lightFlicker 2.5s linear forwards;
 }
-/* --- [수정됨] 스크롤 애니메이션 스타일 끝 --- */
+
+/* 조명 깜빡임 키프레임 정의 */
+@keyframes lightFlicker {
+    /* 0% ~ 40% (약 1초): 어두운 상태 유지 (a_1) */
+    0% { opacity: 0; }
+    40% { opacity: 0; }
+
+    /* 40% ~ 80% (약 1초): 깜빡깜빡 (지지직 거리는 느낌) */
+    41% { opacity: 0.4; }
+    43% { opacity: 0; }
+    46% { opacity: 0.8; }
+    48% { opacity: 0.1; }
+    50% { opacity: 0.3; }
+    55% { opacity: 0; }
+    60% { opacity: 1; }
+    65% { opacity: 0.2; }
+    70% { opacity: 0.7; }
+    75% { opacity: 0.4; }
+
+    /* 80% 이후: 완전히 켜짐 (a_2) */
+    80% { opacity: 1; }
+    100% { opacity: 1; }
+}
 
 
 /* 이미지 스타일 */
 .container img {
     width: 100%;
-    max-width: 1920px;
     height: auto;
     display: block;
 }
@@ -98,7 +112,6 @@ body::-webkit-scrollbar-thumb:hover {
 /* 3D 모델 컨테이너 스타일 */
 .model-viewer-wrapper {
     width: 100%;
-    max-width: 1920px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -473,11 +486,17 @@ body::-webkit-scrollbar-thumb:hover {
 
 <div class="container">
     <div class="scroll-trigger">
-        <div class="sticky-visual">
-            <img src="assets/a.png" class="zoom-img layer-a" alt="Main Portfolio View">
-            
-            <img src="assets/b.png" class="zoom-img layer-b" alt="Main Portfolio Detail">
-        </div>
+        <div class="intro-visual-wrapper">
+    		<img src="assets/a_1.png" class="intro-img base-layer" alt="Portfolio Dark">
+    
+    		<img src="assets/a_2.png" class="intro-img effect-layer" alt="Portfolio Light">
+	</div>
+    </div>
+    <div class="pc-image-wrapper">
+        <img src="assets/profile_02.jpg" alt="Profile 02">
+    </div>
+    <div class="mob-image-wrapper">
+        <img src="assets/mob_profile_01.jpg" alt="Mobile Profile">
     </div>
 
     <p class="sub_txt">아래 object를 클릭하면 상세페이지로 넘어갑니다.</p>
@@ -580,55 +599,6 @@ const detailOverlay = document.getElementById('exhibition-detail-overlay');
 const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
-
-// [수정됨] 자연스러운 스크롤 애니메이션 로직 (크로스페이드 적용)
-const scrollTrigger = document.querySelector('.scroll-trigger');
-const layerA = document.querySelector('.layer-a');
-const layerB = document.querySelector('.layer-b');
-
-// 스크롤 이벤트 핸들러
-function onScroll() {
-    if (!scrollTrigger) return;
-
-    const rect = scrollTrigger.getBoundingClientRect();
-    const scrollTop = window.scrollY;
-    const triggerTop = scrollTrigger.offsetTop;
-    const triggerHeight = scrollTrigger.offsetHeight;
-    const windowHeight = window.innerHeight;
-
-    // 스크롤 진행도 계산 (0 ~ 1)
-    let progress = (scrollTop - triggerTop) / (triggerHeight - windowHeight);
-    if (progress < 0) progress = 0;
-    if (progress > 1) progress = 1;
-
-    // 1. 확대 (Scale): 1배 -> 약 3.5배까지 부드럽게 확대
-    // 마지막에 B이미지와 크기가 거의 일치하도록 배율 조정
-    const maxScale = 2; 
-    const scale = 1 + (progress * (maxScale - 1));
-    layerA.style.transform = `scale(${scale})`;
-
-    // 2. 교체 (Opacity - Crossfade): 
-    // 진행도 70% 지점부터 A는 투명해지고 B는 나타나기 시작하여 자연스럽게 섞임
-    const fadeStart = 0.9; // 교체 시작 지점
-    let opacityA = 1;
-    let opacityB = 0;
-
-    if (progress > fadeStart) {
-        // fadeStart부터 1.0까지의 구간을 0~1로 정규화
-        const fadeProgress = (progress - fadeStart) / (1 - fadeStart);
-        opacityA = 1 - fadeProgress;
-        opacityB = fadeProgress;
-    }
-
-    layerA.style.opacity = opacityA;
-    layerB.style.opacity = opacityB;
-}
-
-// 성능을 위해 requestAnimationFrame 사용 권장 (선택 사항, 현재는 직접 호출)
-window.addEventListener('scroll', onScroll);
-// 초기 로드시 한번 실행하여 상태 설정
-onScroll();
-
 
 function isWideScreen() {
     return window.innerWidth >= 759;
