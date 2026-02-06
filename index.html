@@ -78,8 +78,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 .layer-a {
     z-index: 1;
-    /* [중요] B이미지와 겹치는 중심점 미세 조정 (center 30% 지점) */
-    transform-origin: center 30%; 
 }
 
 .layer-b {
@@ -605,13 +603,13 @@ function onScroll() {
 
     // 1. 확대 (Scale): 1배 -> 약 3.5배까지 부드럽게 확대
     // 마지막에 B이미지와 크기가 거의 일치하도록 배율 조정
-    const maxScale = 3.5; 
+    const maxScale = 2; 
     const scale = 1 + (progress * (maxScale - 1));
     layerA.style.transform = `scale(${scale})`;
 
     // 2. 교체 (Opacity - Crossfade): 
     // 진행도 70% 지점부터 A는 투명해지고 B는 나타나기 시작하여 자연스럽게 섞임
-    const fadeStart = 0.7; // 교체 시작 지점
+    const fadeStart = 0.9; // 교체 시작 지점
     let opacityA = 1;
     let opacityB = 0;
 
