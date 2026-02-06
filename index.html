@@ -5,216 +5,538 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta property="og:description" content="작은 시작도 끝까지 책임지는 디자이너 함다빈입니다." />
 <title>Dabin | Portfolio</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
-<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
-        }
-    }
-</script>
-
 <style>
-/* 초기화 */
-body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #050505; font-family: Arial, sans-serif; }
-
-/* 1. 3D 인트로 섹션 (스크롤 연출 공간) */
-#intro-section {
-    width: 100%;
-    height: 100vh; /* 화면 꽉 차게 */
-    position: relative;
-    overflow: hidden;
-    z-index: 10;
-    background-color: #050505;
+/* 공통 스타일 */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #d8d8d8;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#three-canvas-container {
+body.no-scroll {
+    overflow: hidden;
+}
+
+/* 스크롤바 디자인 (Webkit 기반) */
+body::-webkit-scrollbar {
+    width: 8px;
+}
+body::-webkit-scrollbar-track {
+    background: #e0e0e0;
+}
+body::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+body::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* 전체 컨테이너 */
+.container {
+    width: 100%;
+    max-width: 1920px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- [수정됨] 스크롤 애니메이션 스타일 시작 --- */
+.scroll-trigger {
+    width: 100%;
+    height: 350vh; /* 스크롤 길이 약간 증가 */
+    position: relative;
+}
+
+.sticky-visual {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.zoom-img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    will-change: transform, opacity;
+    /* 부드러운 실시간 제어를 위해 transition 제거 */
+}
+
+.layer-a {
+    z-index: 1;
+    /* [중요] B이미지와 겹치는 중심점 미세 조정 (center 30% 지점) */
+    transform-origin: center 30%; 
+}
+
+.layer-b {
+    z-index: 2;
+    opacity: 0; /* 처음에는 숨김 */
+}
+/* --- [수정됨] 스크롤 애니메이션 스타일 끝 --- */
+
+
+/* 이미지 스타일 */
+.container img {
+    width: 100%;
+    max-width: 1920px;
+    height: auto;
     display: block;
 }
 
-#loading-text {
-    position: absolute; top: 50%; left: 50%; 
-    transform: translate(-50%, -50%); 
-    color: #fff; font-size: 1.2rem; pointer-events: none;
-    z-index: 100; text-align: center;
-}
-
-/* 2. 메인 콘텐츠 래퍼 (인트로 끝나고 나오는 부분) */
-#content-wrapper {
-    position: relative;
-    z-index: 20;
-    background-color: #d8d8d8; /* 원래 배경색 */
+/* 3D 모델 컨테이너 스타일 */
+.model-viewer-wrapper {
     width: 100%;
-    box-shadow: 0px -10px 30px rgba(0,0,0,0.8); /* 그림자 효과 */
+    max-width: 1920px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto;
 }
 
-/* 기존 스타일 유지 */
-body.no-scroll { overflow: hidden; }
-body::-webkit-scrollbar { width: 8px; }
-body::-webkit-scrollbar-track { background: #e0e0e0; }
-body::-webkit-scrollbar-thumb { background-color: #888; border-radius: 4px; }
-body::-webkit-scrollbar-thumb:hover { background-color: #555; }
+.model-viewer-item {
+    width: 100%;
+    max-width: 700px;
+    height: 600px;
+    margin: 20px;
+    cursor: grab;
+    touch-action: none;
+}
 
-.container { width: 100%; max-width: 1920px; display: flex; flex-direction: column; align-items: center; margin: 0 auto; padding-top: 50px; }
-.container img { width: 100%; max-width: 1920px; height: auto; display: block; }
-.pc-image-wrapper { display: block; width: 100%; max-width: 1920px; }
-.mob-image-wrapper { display: none; width: 100%; max-width: 1920px; }
-.container video { width: 100%; max-width: 1920px; height: auto; display: block; }
-.model-viewer-wrapper { width: 100%; max-width: 1920px; display: flex; flex-wrap: wrap; justify-content: center; margin: 0 auto; }
-.model-viewer-item { width: 100%; max-width: 700px; height: 600px; margin: 20px; cursor: grab; touch-action: none; }
-.model-viewer-item:active { cursor: grabbing; }
+.model-viewer-item:active {
+    cursor: grabbing;
+}
 
-/* 팝업 스타일 */
-.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
-.popup-content { position: relative; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; background-size: cover; background-position: center top; }
-.popup-content::-webkit-scrollbar { width: 8px; }
-.popup-content::-webkit-scrollbar-track { background: transparent; }
-.popup-content::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.5); border-radius: 4px; }
-.popup-content.exhibition-popup { background-image: url('assets/profile/profile_bg.jpg'); padding: 50px 20px; }
-.popup-content img { width: auto; height: auto; max-width: 100%; max-height: 100%; display: block; margin: 0 auto; }
-.popup-content .image-group { display: flex; flex-direction: column; justify-content: center; gap: 150px; padding-top: 20px; }
-.popup-content .image-group.two-images-pc-m { gap: 200px; }
-.popup-content .image-group.three-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.popup-content .image-group.four-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.popup-content .image-group .image-wrapper { position: relative; width: auto; max-width: 100%; margin: 0 auto; }
-.popup-content .image-group .image-wrapper img { width: 100%; height: auto; display: block; }
-.popup-content .image-group .image-title { color: white; font-size: 16px; font-weight: bold; margin-bottom: 10px; text-align: left; }
-.popup-close { position: fixed; top: 30px; right: 30px; cursor: pointer; z-index: 1001; width: 40px !important; height: 40px !important; filter: invert(100%); }
-.popup-close.black-close-btn { filter: invert(0%); }
+/* 팝업 오버레이 스타일 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
-/* 기획전 그리드 스타일 */
-.exhibition-grid { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-.column-left, .column-right { display: flex; flex-direction: column; gap: 20px; width: 50%; }
-.exhibition-item { cursor: pointer; transition: transform 0.2s; overflow: hidden; border-radius: 5px; }
-.exhibition-item img { width: 100%; height: auto; display: block; border-radius: 5px; }
-.exhibition-item:hover img { transform: scale(1.05); }
-.exhibition-promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 1300px; margin: 20px auto 0 auto; padding: 0 20px; align-items: start; }
-.exhibition-promo-grid .exhibition-item.item-19 { grid-column: 1; grid-row: 1 / span 3; }
-.exhibition-promo-grid .item-right-column { grid-column: 2; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 20px; width: 100%; }
-.exhibition-promo-grid .exhibition-item-20-group { display: flex; gap: 20px; }
-.exhibition-promo-grid .exhibition-item-20-group .exhibition-item { flex: 1; }
-.exhibition-item-23-24-wrapper { width: 100%; max-width: 1300px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; }
-.exhibition-item-23-24-wrapper .exhibition-item { flex: 1; }
-.exhibition-masonry { width: 100%; max-width: 1300px; margin: 20px auto; padding: 0 20px; column-count: 3; column-gap: 20px; }
-.exhibition-masonry .exhibition-item { -webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid-column; margin-bottom: 20px; }
-.exhibition-masonry .exhibition-item img { display: block; width: 100%; height: auto; border-radius: 5px; }
-.sub_txt { opacity: 0.5; font-size: 14px; color: gray; padding: 100px 0 0; margin: 0; }
+/* 팝업 콘텐츠 */
+.popup-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    text-align: center;
+    background-size: cover;
+    background-position: center top;
+}
+
+/* 팝업 스크롤바 디자인 */
+.popup-content::-webkit-scrollbar {
+    width: 8px;
+}
+.popup-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.popup-content::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.popup-content.exhibition-popup {
+    background-image: url('assets/profile/profile_bg.jpg');
+    padding: 50px 20px;
+}
+
+.popup-content img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+/* 이미지 그룹 세로 정렬 */
+.popup-content .image-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 150px;
+    padding-top: 20px;
+}
+
+/* PC, M 이미지 간격 200px로 조정 */
+.popup-content .image-group.two-images-pc-m {
+    gap: 200px;
+}
+
+.popup-content .image-group.three-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.popup-content .image-group.four-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.popup-content .image-group .image-wrapper {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.popup-content .image-group .image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 타이틀 문구 스타일 */
+.popup-content .image-group .image-title {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* 팝업 닫기 버튼 */
+.popup-close {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 1001;
+    width: 40px !important;
+    height: 40px !important;
+    filter: invert(100%);
+}
+
+/* 모바일 전용, 검은색 닫기 버튼 */
+.popup-close.black-close-btn {
+    filter: invert(0%);
+}
+
+/* 기획전 페이지 스타일 (팝업용으로 수정) */
+.exhibition-grid {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* Masonry 레이아웃을 위한 컬럼 */
+.column-left,
+.column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 50%;
+}
+
+.exhibition-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.exhibition-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 5px;
+}
+
+.exhibition-item:hover img {
+    transform: scale(1.05);
+}
+
+.exhibition-grid-row {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* 새로운 레이아웃을 위한 CSS Grid */
+.exhibition-promo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto 0 auto;
+    padding: 0 20px;
+    align-items: start;
+}
+
+.exhibition-promo-grid .exhibition-item.item-19 {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+}
+
+/* 20-1, 20-2, 22번은 별도의 컨테이너로 묶고 Flexbox로 배치 */
+.exhibition-promo-grid .item-right-column {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.exhibition-promo-grid .exhibition-item-20-group {
+    display: flex;
+    gap: 20px;
+}
+.exhibition-promo-grid .exhibition-item-20-group .exhibition-item {
+    flex: 1;
+}
+
+/* 23, 24번 이미지를 위한 별도의 래퍼 */
+.exhibition-item-23-24-wrapper {
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 20px;
+}
+.exhibition-item-23-24-wrapper .exhibition-item {
+    flex: 1;
+}
+
+/* 25-35번 이미지를 위한 3열 Masonry 레이아웃 */
+.exhibition-masonry {
+    width: 100%;
+    max-width: 1300px;
+    margin: 20px auto;
+    padding: 0 20px;
+    column-count: 3;
+    column-gap: 20px;
+}
+
+.exhibition-masonry .exhibition-item {
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid-column;
+    margin-bottom: 20px;
+}
+
+.exhibition-masonry .exhibition-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+.sub_txt{
+    opacity: 0.5;
+    font-size: 14px;
+    color: gray;
+    padding: 100px 0 0;
+    margin: 0;
+}
 
 /* 반응형 */
 @media (min-width: 1480px) {
-    .pc-image-wrapper { display: block; }
-    .mob-image-wrapper { display: none; }
-    .model-viewer-wrapper { flex-direction: row; flex-wrap: wrap; justify-content: center; margin: 0 auto; }
-    .model-viewer-item { width: calc(40% - 40px); max-width: none; height: 600px; margin: 20px; }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .model-viewer-item {
+        width: calc(40% - 40px);
+        max-width: none;
+        height: 600px;
+        margin: 20px;
+    }
 }
 @media (min-width: 769px) and (max-width: 1479px) {
-    .pc-image-wrapper { display: block; }
-    .mob-image-wrapper { display: none; }
-    .model-viewer-wrapper { flex-direction: row; flex-wrap: wrap; justify-content: center; margin: 0 auto; }
-    .model-viewer-item { width: calc(50% - 40px); max-width: none; height: 600px; margin: 20px; }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .model-viewer-item {
+        width: calc(50% - 40px);
+        max-width: none;
+        height: 600px;
+        margin: 20px;
+    }
 }
 @media (max-width: 768px) {
-    .pc-image-wrapper { display: none; }
-    .mob-image-wrapper { display: block; }
-    .model-viewer-wrapper { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: flex-start; margin-bottom: 100px; }
-    .model-viewer-item { width: 45vw; height: 45vw; margin: 10px 1vw; }
-    .popup-content .image-group .image-title { color: black; font-size: 16px; margin : 20px 40%; padding : 10px; font-weight: bold; text-align: center; background-color: white; border-radius: 20px; }
-    .popup-content { max-width: 100%; max-height: 100%; }
-    .popup-close { top: 20px; right: 20px; }
-    .mobile-exhibition-overlay { padding: 20px; }
-    .mobile-no-padding-overlay { padding: 0px; }
-    .exhibition-masonry { column-count: 2; }
-    .exhibition-item-23-24-wrapper, .exhibition-promo-grid { display: block; }
-    .exhibition-promo-grid { display: flex; margin: 0; padding: 20px 20px 0 20px; }
-    .exhibition-item, .exhibition-promo-grid .item-right-column { width: 100%; }
-    .exhibition-promo-grid .item-19 { width: 100%; }
-    .popup-content .image-group.three-images, .popup-content .image-group.four-images { grid-template-columns: 1fr; }
-    .popup-content .image-group { gap: 100px; }
-    .sub_txt { font-size: 12px; }
+    .model-viewer-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        margin-bottom: 100px;
+    }
+    .model-viewer-item {
+        width: 45vw;
+        height: 45vw;
+        margin: 10px 1vw;
+    }
+    .popup-content .image-group .image-title {
+        color: black;
+        font-size: 16px;
+        margin : 20px 40%;
+        padding : 10px;
+        font-weight: bold;
+        text-align: center;
+        background-color: white;
+        border-radius: 20px;
+    }
+    .popup-content {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    .popup-close {
+        top: 20px;
+        right: 20px;
+    }
+    .mobile-exhibition-overlay {
+        padding: 20px;
+    }
+    .mobile-no-padding-overlay {
+        padding: 0px;
+    }
+    .exhibition-masonry {
+        column-count: 2;
+    }
+    .exhibition-item-23-24-wrapper,
+    .exhibition-promo-grid {
+        display: block;
+    }
+    .exhibition-promo-grid {
+        display: flex;
+        margin: 0;
+        padding: 20px 20px 0 20px;
+    }
+    .exhibition-item,
+    .exhibition-promo-grid .item-right-column {
+        width: 100%;
+    }
+    .exhibition-promo-grid .item-19 {
+        width: 100%;
+    }
+    .popup-content .image-group.three-images,
+    .popup-content .image-group.four-images {
+        grid-template-columns: 1fr;
+    }
+    .popup-content .image-group {
+        gap: 100px;
+    }
+    .sub_txt{
+        font-size: 12px;
+    }
 }
+
+
 </style>
 </head>
 <body>
 
-<div id="intro-section">
-    <div id="loading-text">Loading 3D Intro...</div>
-    <div id="three-canvas-container"></div>
-</div>
-
-<div id="content-wrapper">
-    <div class="container">
-        <div class="pc-image-wrapper">
-            <img src="assets/profile_02.jpg" alt="Profile 02">
+<div class="container">
+    <div class="scroll-trigger">
+        <div class="sticky-visual">
+            <img src="assets/a.jpg" class="zoom-img layer-a" alt="Main Portfolio View">
+            
+            <img src="assets/b.jpg" class="zoom-img layer-b" alt="Main Portfolio Detail">
         </div>
-        <div class="mob-image-wrapper">
-            <img src="assets/mob_profile_01.jpg" alt="Mobile Profile">
-        </div>
+    </div>
 
-        <video id="myVideo" src="assets/gift_box_total_2.mp4" muted autoplay loop></video>
-        <p class="sub_txt">아래 object를 클릭하면 상세페이지로 넘어갑니다.</p>
+    <p class="sub_txt">아래 object를 클릭하면 상세페이지로 넘어갑니다.</p>
 
-        <div class="model-viewer-wrapper" id="main-content">
-            <model-viewer class="model-viewer-item"
-                src="assets/seasonOff.glb"
-                alt="Project 1"
-                orientation="0deg 0deg 270deg"
-                disable-zoom
-                min-polar-angle="90deg"
-                max-polar-angle="90deg"
-                min-azimuth-angle="-30deg"
-                max-azimuth-angle="30deg"
-                data-portfolio-url="assets/SO_detail.jpg"
-                loading="eager">
-            </model-viewer>
+    <div class="model-viewer-wrapper" id="main-content">
+        <model-viewer class="model-viewer-item"
+            src="assets/seasonOff.glb"
+            alt="Project 1"
+            orientation="0deg 0deg 270deg"
+            disable-zoom
+            min-polar-angle="90deg"
+            max-polar-angle="90deg"
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/SO_detail.jpg"
+            loading="eager">
+        </model-viewer>
 
-            <model-viewer class="model-viewer-item"
-                src="assets/summerAttention.glb"
-                alt="Project 2"
-                orientation="0deg 0deg 270deg"
-                disable-zoom
-                min-polar-angle="90deg"
-                max-polar-angle="90deg"
-                min-azimuth-angle="-30deg"
-                max-azimuth-angle="30deg"
-                data-portfolio-url="assets/SA_detail.jpg"
-                loading="eager">
-            </model-viewer>
+        <model-viewer class="model-viewer-item"
+            src="assets/summerAttention.glb"
+            alt="Project 2"
+            orientation="0deg 0deg 270deg"
+            disable-zoom
+            min-polar-angle="90deg"
+            max-polar-angle="90deg"
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/SA_detail.jpg"
+            loading="eager">
+        </model-viewer>
 
-            <model-viewer class="model-viewer-item"
-                src="assets/fapleBadge.glb"
-                alt="Project 3"
-                orientation="0deg 0deg 270deg"
-                disable-zoom
-                min-polar-angle="90deg"
-                max-polar-angle="90deg"
-                min-azimuth-angle="-30deg"
-                max-azimuth-angle="30deg"
-                data-portfolio-url="assets/FD_detail.jpg"
-                loading="eager">
-            </model-viewer>
+        <model-viewer class="model-viewer-item"
+            src="assets/fapleBadge.glb"
+            alt="Project 3"
+            orientation="0deg 0deg 270deg"
+            disable-zoom
+            min-polar-angle="90deg"
+            max-polar-angle="90deg"
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="assets/FD_detail.jpg"
+            loading="eager">
+        </model-viewer>
 
-            <model-viewer class="model-viewer-item"
-                src="assets/exhibitionCheck.glb"
-                alt="Project 4"
-                orientation="0deg 0deg 270deg"
-                disable-zoom
-                min-polar-angle="90deg"
-                max-polar-angle="90deg"
-                min-azimuth-angle="-30deg"
-                max-azimuth-angle="30deg"
-                data-portfolio-url="exhibition_page"
-                loading="eager">
-            </model-viewer>
-        </div>
-        </div>
+        <model-viewer class="model-viewer-item"
+            src="assets/exhibitionCheck.glb"
+            alt="Project 4"
+            orientation="0deg 0deg 270deg"
+            disable-zoom
+            min-polar-angle="90deg"
+            max-polar-angle="90deg"
+            min-azimuth-angle="-30deg"
+            max-azimuth-angle="30deg"
+            data-portfolio-url="exhibition_page"
+            loading="eager">
+        </model-viewer>
+    </div>
 </div>
 
 <div class="popup-overlay" id="general-image-overlay">
@@ -238,162 +560,7 @@ body::-webkit-scrollbar-thumb:hover { background-color: #555; }
     </div>
 </div>
 
-<script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-
-    // GSAP 등록
-    gsap.registerPlugin(ScrollTrigger);
-
-    const container = document.getElementById('three-canvas-container');
-    const loadingText = document.getElementById('loading-text');
-
-    if (container) {
-        // 1. Scene (완전 검은색 배경)
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
-
-        // 2. Camera (초기: 아주 멀리 배치 Z=500)
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 5000);
-        camera.position.set(0, 50, 500); 
-
-        // 3. Renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-
-        // 4. 무대 바닥 (핀조명 맺히는 곳)
-        const floorGeometry = new THREE.CircleGeometry(400, 64);
-        const floorMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x111111, roughness: 0.1, metalness: 0.5 
-        });
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -50;
-        floor.receiveShadow = true;
-        scene.add(floor);
-
-        // 5. Lighting (초기상태: 암전)
-        
-        // (A) Ambient (아주 어둡게)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0); 
-        scene.add(ambientLight);
-
-        // (B) 핀 조명 1 (왼쪽)
-        const spotLight1 = new THREE.SpotLight(0xffffff, 0); 
-        spotLight1.position.set(-40, 150, 50);
-        spotLight1.angle = 0.3; spotLight1.penumbra = 0.5; spotLight1.castShadow = true;
-        scene.add(spotLight1);
-
-        // (C) 핀 조명 2 (오른쪽)
-        const spotLight2 = new THREE.SpotLight(0xffffff, 0); 
-        spotLight2.position.set(40, 150, 50);
-        spotLight2.angle = 0.3; spotLight2.penumbra = 0.5; spotLight2.castShadow = true;
-        scene.add(spotLight2);
-
-        // 6. Loader
-        const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        loader.setDRACOLoader(dracoLoader);
-        loader.setPath('./');
-
-        const fileName = 'portfolio_main.glb'; 
-
-        loader.load(fileName, function (gltf) {
-            const object = gltf.scene;
-
-            // 중앙 정렬
-            const box = new THREE.Box3().setFromObject(object);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            object.position.x += (object.position.x - center.x);
-            object.position.y += (object.position.y - center.y);
-            object.position.z += (object.position.z - center.z);
-            
-            // 바닥 높이 맞춤
-            const adjustedBox = new THREE.Box3().setFromObject(object);
-            floor.position.y = adjustedBox.min.y;
-
-            // 크기 600
-            const maxAxis = Math.max(size.x, size.y, size.z);
-            const scaleFactor = 600 / maxAxis;
-            object.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-            object.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    if(child.material) child.material.side = THREE.DoubleSide;
-                }
-            });
-
-            scene.add(object);
-            spotLight1.target = object;
-            spotLight2.target = object;
-            
-            if(loadingText) loadingText.style.display = 'none';
-
-            // ===============================================
-            // GSAP 애니메이션 (스크롤리텔링)
-            // ===============================================
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: "#intro-section", // 인트로 섹션 트리거
-                    start: "top top",      
-                    end: "+=2000",         // 스크롤 길이
-                    scrub: 1,              // 스크롤 동기화
-                    pin: true,             // 화면 고정
-                    anticipatePin: 1
-                }
-            });
-
-            // 1. 카메라 줌인 (Z: 500 -> 150)
-            tl.to(camera.position, { z: 150, duration: 5, ease: "power2.inOut" }, "zoom")
-              // 2. 조명 깜빡임 효과 (줌인 끝날 때쯤)
-              .to([spotLight1, spotLight2], { intensity: 50, duration: 0.1 }, "-=1.5") 
-              .to([spotLight1, spotLight2], { intensity: 0, duration: 0.1 })  
-              .to([spotLight1, spotLight2], { intensity: 80, duration: 0.1 }) 
-              .to([spotLight1, spotLight2], { intensity: 10, duration: 0.1 }) 
-              .to([spotLight1, spotLight2], { intensity: 180, duration: 2 }); 
-
-            // 환경광도 살짝 켬
-            tl.to(ambientLight, { intensity: 0.2, duration: 2 }, "<");
-
-        }, 
-        function(xhr) {
-            if(loadingText) loadingText.innerText = `Loading... ${(xhr.loaded / xhr.total * 100).toFixed(0)}%`;
-        }, 
-        function (error) {
-            console.error(error);
-            if(loadingText) {
-                loadingText.innerHTML = `Error: ${fileName} load failed.`;
-            }
-        });
-
-        // Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            ScrollTrigger.refresh();
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
-        animate();
-    }
-</script>
-
 <script>
-// 기존 팝업 로직은 그대로 유지
 let lastScrollPosition = 0;
 let popupScrollPosition = 0;
 let isDragging = false;
@@ -416,10 +583,60 @@ const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
 
+// [수정됨] 자연스러운 스크롤 애니메이션 로직 (크로스페이드 적용)
+const scrollTrigger = document.querySelector('.scroll-trigger');
+const layerA = document.querySelector('.layer-a');
+const layerB = document.querySelector('.layer-b');
+
+// 스크롤 이벤트 핸들러
+function onScroll() {
+    if (!scrollTrigger) return;
+
+    const rect = scrollTrigger.getBoundingClientRect();
+    const scrollTop = window.scrollY;
+    const triggerTop = scrollTrigger.offsetTop;
+    const triggerHeight = scrollTrigger.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    // 스크롤 진행도 계산 (0 ~ 1)
+    let progress = (scrollTop - triggerTop) / (triggerHeight - windowHeight);
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+
+    // 1. 확대 (Scale): 1배 -> 약 3.5배까지 부드럽게 확대
+    // 마지막에 B이미지와 크기가 거의 일치하도록 배율 조정
+    const maxScale = 3.5; 
+    const scale = 1 + (progress * (maxScale - 1));
+    layerA.style.transform = `scale(${scale})`;
+
+    // 2. 교체 (Opacity - Crossfade): 
+    // 진행도 70% 지점부터 A는 투명해지고 B는 나타나기 시작하여 자연스럽게 섞임
+    const fadeStart = 0.7; // 교체 시작 지점
+    let opacityA = 1;
+    let opacityB = 0;
+
+    if (progress > fadeStart) {
+        // fadeStart부터 1.0까지의 구간을 0~1로 정규화
+        const fadeProgress = (progress - fadeStart) / (1 - fadeStart);
+        opacityA = 1 - fadeProgress;
+        opacityB = fadeProgress;
+    }
+
+    layerA.style.opacity = opacityA;
+    layerB.style.opacity = opacityB;
+}
+
+// 성능을 위해 requestAnimationFrame 사용 권장 (선택 사항, 현재는 직접 호출)
+window.addEventListener('scroll', onScroll);
+// 초기 로드시 한번 실행하여 상태 설정
+onScroll();
+
+
 function isWideScreen() {
     return window.innerWidth >= 759;
 }
 
+// model-viewer 클릭/드래그 이벤트 처리
 models.forEach(model => {
     model.addEventListener('pointerdown', e => {
         isDragging = false;
@@ -450,9 +667,7 @@ models.forEach(model => {
             isDragging = false;
             return;
         }
-
         const url = model.getAttribute('data-portfolio-url');
-        
         if (url === 'exhibition_page') {
             e.stopPropagation();
             e.preventDefault();
@@ -486,36 +701,43 @@ function openGeneralPopup(imageSrc) {
         const newFileName = `mob_${fileName}`;
         finalImageSrc = `${parts.join('/')}/${newFileName}`;
     }
-
     if (imageSrc.includes('FD_detail.jpg') && !isWideScreen()) {
         generalCloseBtn.classList.add('black-close-btn');
     } else {
         generalCloseBtn.classList.remove('black-close-btn');
     }
-
     if (!isWideScreen()) {
         generalOverlay.classList.add('mobile-no-padding-overlay');
     } else {
         generalOverlay.classList.remove('mobile-no-padding-overlay');
     }
-
     let contentHtml = `<img src="${finalImageSrc}" alt="Popup Image">`;
-
     if (imageSrc.includes('SO_detail.jpg') && isWideScreen()) {
         contentHtml += `
             <a href="230821_19236.html" target="_blank" style="
-                position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
-                background-color: rgba(0, 0, 0, 0.85); color: #fff; padding: 15px 30px;
-                text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 2000; transition: transform 0.2s, background-color 0.2s;
-                white-space: nowrap; cursor: pointer;
-            " onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" 
+                position: fixed;
+                bottom: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.85);
+                color: #fff;
+                padding: 15px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                z-index: 2000;
+                transition: transform 0.2s, background-color 0.2s;
+                white-space: nowrap;
+                cursor: pointer;
+            " 
+            onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" 
             onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">
                 HTML 페이지 확인하기 &rarr;
             </a>
         `;
     }
-
     generalImageContainer.innerHTML = contentHtml;
     generalOverlay.style.display = 'flex';
     document.body.classList.add('no-scroll');
@@ -525,53 +747,53 @@ function openExhibitionPagePopup() {
     const exhibitionHtml = `
         <div class="exhibition-grid">
             <div class="column-left">
-                <div class="exhibition-item" data-image-path="1"><img src="assets/profile/profile_1.jpg"></div>
-                <div class="exhibition-item" data-image-path="3"><img src="assets/profile/profile_3.jpg"></div>
-                <div class="exhibition-item" data-image-path="5"><img src="assets/profile/profile_5.jpg"></div>
-                <div class="exhibition-item" data-image-path="7"><img src="assets/profile/profile_7.jpg"></div>
-                <div class="exhibition-item" data-image-path="9"><img src="assets/profile/profile_9.jpg"></div>
-                <div class="exhibition-item" data-image-path="11"><img src="assets/profile/profile_11.jpg"></div>
-                <div class="exhibition-item" data-image-path="13"><img src="assets/profile/profile_13.jpg"></div>
-                <div class="exhibition-item" data-image-path="15"><img src="assets/profile/profile_15.jpg"></div>
+                <div class="exhibition-item" data-image-path="1"><img src="assets/profile/profile_1.jpg" alt="Exhibition 1"></div>
+                <div class="exhibition-item" data-image-path="3"><img src="assets/profile/profile_3.jpg" alt="Exhibition 3"></div>
+                <div class="exhibition-item" data-image-path="5"><img src="assets/profile/profile_5.jpg" alt="Exhibition 5"></div>
+                <div class="exhibition-item" data-image-path="7"><img src="assets/profile/profile_7.jpg" alt="Exhibition 7"></div>
+                <div class="exhibition-item" data-image-path="9"><img src="assets/profile/profile_9.jpg" alt="Exhibition 9"></div>
+                <div class="exhibition-item" data-image-path="11"><img src="assets/profile/profile_11.jpg" alt="Exhibition 11"></div>
+                <div class="exhibition-item" data-image-path="13"><img src="assets/profile/profile_13.jpg" alt="Exhibition 13"></div>
+                <div class="exhibition-item" data-image-path="15"><img src="assets/profile/profile_15.jpg" alt="Exhibition 15"></div>
             </div>
             <div class="column-right">
-                <div class="exhibition-item" data-image-path="2"><img src="assets/profile/profile_2.jpg"></div>
-                <div class="exhibition-item" data-image-path="4"><img src="assets/profile/profile_4.jpg"></div>
-                <div class="exhibition-item" data-image-path="6"><img src="assets/profile/profile_6.jpg"></div>
-                <div class="exhibition-item" data-image-path="8"><img src="assets/profile/profile_8.jpg"></div>
-                <div class="exhibition-item" data-image-path="10"><img src="assets/profile/profile_10.jpg"></div>
-                <div class="exhibition-item" data-image-path="12"><img src="assets/profile/profile_12.jpg"></div>
-                <div class="exhibition-item" data-image-path="14"><img src="assets/profile/profile_14.jpg"></div>
-                <div class="exhibition-item" data-image-path="16"><img src="assets/profile/profile_16.jpg"></div>
-                <div class="exhibition-item" data-image-path="18"><img src="assets/profile/profile_18.jpg"></div>
+                <div class="exhibition-item" data-image-path="2"><img src="assets/profile/profile_2.jpg" alt="Exhibition 2"></div>
+                <div class="exhibition-item" data-image-path="4"><img src="assets/profile/profile_4.jpg" alt="Exhibition 4"></div>
+                <div class="exhibition-item" data-image-path="6"><img src="assets/profile/profile_6.jpg" alt="Exhibition 6"></div>
+                <div class="exhibition-item" data-image-path="8"><img src="assets/profile/profile_8.jpg" alt="Exhibition 8"></div>
+                <div class="exhibition-item" data-image-path="10"><img src="assets/profile/profile_10.jpg" alt="Exhibition 10"></div>
+                <div class="exhibition-item" data-image-path="12"><img src="assets/profile/profile_12.jpg" alt="Exhibition 12"></div>
+                <div class="exhibition-item" data-image-path="14"><img src="assets/profile/profile_14.jpg" alt="Exhibition 14"></div>
+                <div class="exhibition-item" data-image-path="16"><img src="assets/profile/profile_16.jpg" alt="Exhibition 16"></div>
+                <div class="exhibition-item" data-image-path="18"><img src="assets/profile/profile_18.jpg" alt="Exhibition 18"></div>
             </div>
         </div>
         <div class="exhibition-promo-grid">
-            <div class="exhibition-item item-19" data-image-path="19"><img src="assets/profile/profile_19.jpg"></div>
+            <div class="exhibition-item item-19" data-image-path="19"><img src="assets/profile/profile_19.jpg" alt="Exhibition 19"></div>
             <div class="item-right-column">
                 <div class="exhibition-item-20-group">
-                    <div class="exhibition-item" data-image-path="20-1"><img src="assets/profile/profile_20_1.jpg"></div>
-                    <div class="exhibition-item" data-image-path="20-2"><img src="assets/profile/profile_20_2.jpg"></div>
+                    <div class="exhibition-item" data-image-path="20-1"><img src="assets/profile/profile_20_1.jpg" alt="Exhibition 20-1"></div>
+                    <div class="exhibition-item" data-image-path="20-2"><img src="assets/profile/profile_20_2.jpg" alt="Exhibition 20-2"></div>
                 </div>
-                <div class="exhibition-item" data-image-path="22"><img src="assets/profile/profile_22.jpg"></div>
+                <div class="exhibition-item" data-image-path="22"><img src="assets/profile/profile_22.jpg" alt="Exhibition 22"></div>
             </div>
         </div>
         <div class="exhibition-item-23-24-wrapper">
-            <div class="exhibition-item" data-image-path="24" style="padding-bottom: 20px;"><img src="assets/profile/profile_24.jpg"></div>
-            <div class="exhibition-item" data-image-path="23"><img src="assets/profile/profile_23.jpg"></div>
+            <div class="exhibition-item" data-image-path="24" style=" padding-bottom: 20px;"><img src="assets/profile/profile_24.jpg" alt="Exhibition 24"></div>
+            <div class="exhibition-item" data-image-path="23"><img src="assets/profile/profile_23.jpg" alt="Exhibition 23"></div>
         </div>
         <div class="exhibition-masonry">
-            <div class="exhibition-item" data-image-path="25"><img src="assets/profile/profile_25.jpg"></div>
-            <div class="exhibition-item" data-image-path="29"><img src="assets/profile/profile_29.jpg"></div>
-            <div class="exhibition-item" data-image-path="33"><img src="assets/profile/profile_33.jpg"></div>
-            <div class="exhibition-item" data-image-path="26"><img src="assets/profile/profile_26.jpg"></div>
-            <div class="exhibition-item" data-image-path="30"><img src="assets/profile/profile_30.jpg"></div>
-            <div class="exhibition-item" data-image-path="34"><img src="assets/profile/profile_34.jpg"></div>
-            <div class="exhibition-item" data-image-path="27"><img src="assets/profile/profile_27.jpg"></div>
-            <div class="exhibition-item" data-image-path="31"><img src="assets/profile/profile_31.jpg"></div>
-            <div class="exhibition-item" data-image-path="35"><img src="assets/profile/profile_35.jpg"></div>
-            <div class="exhibition-item" data-image-path="28"><img src="assets/profile/profile_28.jpg"></div>
-            <div class="exhibition-item" data-image-path="32"><img src="assets/profile/profile_32.jpg"></div>
+            <div class="exhibition-item" data-image-path="25"><img src="assets/profile/profile_25.jpg" alt="Exhibition 25"></div>
+            <div class="exhibition-item" data-image-path="29"><img src="assets/profile/profile_29.jpg" alt="Exhibition 29"></div>
+            <div class="exhibition-item" data-image-path="33"><img src="assets/profile/profile_33.jpg" alt="Exhibition 33"></div>
+            <div class="exhibition-item" data-image-path="26"><img src="assets/profile/profile_26.jpg" alt="Exhibition 26"></div>
+            <div class="exhibition-item" data-image-path="30"><img src="assets/profile/profile_30.jpg" alt="Exhibition 30"></div>
+            <div class="exhibition-item" data-image-path="34"><img src="assets/profile/profile_34.jpg" alt="Exhibition 34"></div>
+            <div class="exhibition-item" data-image-path="27"><img src="assets/profile/profile_27.jpg" alt="Exhibition 27"></div>
+            <div class="exhibition-item" data-image-path="31"><img src="assets/profile/profile_31.jpg" alt="Exhibition 31"></div>
+            <div class="exhibition-item" data-image-path="35"><img src="assets/profile/profile_35.jpg" alt="Exhibition 35"></div>
+            <div class="exhibition-item" data-image-path="28"><img src="assets/profile/profile_28.jpg" alt="Exhibition 28"></div>
+            <div class="exhibition-item" data-image-path="32"><img src="assets/profile/profile_32.jpg" alt="Exhibition 32"></div>
         </div>
     `;
     listContainer.innerHTML = exhibitionHtml;
@@ -583,7 +805,6 @@ function openExhibitionPagePopup() {
     }
     listOverlay.style.display = 'flex';
     document.body.classList.add('no-scroll');
-
     let ignoreNextClick = true;
     listOverlay.addEventListener('click', (ev) => {
         if (ignoreNextClick) {
@@ -592,12 +813,10 @@ function openExhibitionPagePopup() {
             ignoreNextClick = false;
         }
     }, { once: true });
-
     if (popupScrollPosition > 0) {
         listContent.scrollTop = popupScrollPosition;
         popupScrollPosition = 0;
     }
-
     document.querySelectorAll('#exhibition-list-container .exhibition-item').forEach(item => {
         item.addEventListener('click', (ev) => {
             const imageNumber = item.getAttribute('data-image-path');
@@ -610,36 +829,34 @@ function openExhibitionPagePopup() {
 function openExhibitionImagePopup(imageNumber) {
     listOverlay.style.display = 'none';
     let imagesHtml = '';
-
     if (imageNumber === '15') {
-        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/web_${imageNumber}_pc.jpg"></div></div>`;
+        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/web_${imageNumber}_pc.jpg" alt="PC Image"></div></div>`;
     } else if (imageNumber === '20-1' || imageNumber === '20-2') {
         const pcImage = `assets/web/web_${imageNumber.replace('-', '_')}_pc.jpg`;
         const mImage = `assets/web/web_${imageNumber.replace('-', '_')}_m.jpg`;
-        imagesHtml = `<div class="image-group two-images-pc-m"><div class="image-wrapper"><div class="image-title">PC</div><img src="${pcImage}"></div><div class="image-wrapper"><div class="image-title">M</div><img src="${mImage}"></div></div>`;
+        imagesHtml = `<div class="image-group two-images-pc-m"><div class="image-wrapper"><div class="image-title">PC</div><img src="${pcImage}" alt="PC Image"></div><div class="image-wrapper"><div class="image-title">M</div><img src="${mImage}" alt="Mobile Image"></div></div>`;
     } else if (imageNumber === '23') {
-        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/corner_a_231109_s_01.jpg"></div><div class="image-wrapper"><div class="image-title">M</div><img src="assets/web/m_corner_a_231109_s_01.jpg"></div><div class="image-wrapper"><div class="image-title">PC 띠배너</div><img src="assets/web/main_h_231109_01.jpg"></div><div class="image-wrapper"><div class="image-title">M 띠배너</div><img src="assets/web/m_main_h_231109_01.jpg"></div></div>`;
+        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/corner_a_231109_s_01.jpg" alt="Image 1"></div><div class="image-wrapper"><div class="image-title">M</div><img src="assets/web/m_corner_a_231109_s_01.jpg" alt="Image 2"></div><div class="image-wrapper"><div class="image-title">PC 띠배너</div><img src="assets/web/main_h_231109_01.jpg" alt="Image 3"></div><div class="image-wrapper"><div class="image-title">M 띠배너</div><img src="assets/web/m_main_h_231109_01.jpg" alt="Image 4"></div></div>`;
     } else if (imageNumber === '24') {
-        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/corner_a_231106_s_01.jpg"></div><div class="image-wrapper"><div class="image-title">M</div><img src="assets/web/m_corner_a_231106_s_01.jpg"></div><div class="image-wrapper"><div class="image-title">PC 띠배너</div><img src="assets/web/main_h_231106_01.jpg"></div><div class="image-wrapper"><div class="image-title">M 띠배너</div><img src="assets/web/m_main_h_231106_01.jpg"></div></div>`;
+        imagesHtml = `<div class="image-group"><div class="image-wrapper"><div class="image-title">PC</div><img src="assets/web/corner_a_231106_s_01.jpg" alt="Image 1"></div><div class="image-wrapper"><div class="image-title">M</div><img src="assets/web/m_corner_a_231106_s_01.jpg" alt="Image 2"></div><div class="image-wrapper"><div class="image-title">PC 띠배너</div><img src="assets/web/main_h_231106_01.jpg" alt="Image 3"></div><div class="image-wrapper"><div class="image-title">M 띠배너</div><img src="assets/web/m_main_h_231106_01.jpg" alt="Image 4"></div></div>`;
     } else if (parseInt(imageNumber) >= 25 && parseInt(imageNumber) <= 35) {
         const introNumber = parseInt(imageNumber) - 24;
-        imagesHtml = `<div class="image-group"><div class="image-wrapper"><img src="assets/intro/intro_${introNumber}.jpg"></div></div>`;
+        imagesHtml = `<div class="image-group"><div class="image-wrapper"><img src="assets/intro/intro_${introNumber}.jpg" alt="Intro Image ${introNumber}"></div></div>`;
     } else {
         const pcImage = `assets/web/web_${imageNumber}_pc.jpg`;
         const mImage = `assets/web/web_${imageNumber}_m.jpg`;
-        imagesHtml = `<div class="image-group two-images-pc-m"><div class="image-wrapper"><div class="image-title">PC</div><img src="${pcImage}"></div><div class="image-wrapper"><div class="image-title">M</div><img src="${mImage}"></div></div>`;
+        imagesHtml = `<div class="image-group two-images-pc-m"><div class="image-wrapper"><div class="image-title">PC</div><img src="${pcImage}" alt="PC Image"></div><div class="image-wrapper"><div class="image-title">M</div><img src="${mImage}" alt="Mobile Image"></div></div>`;
     }
-
     if (isWideScreen()) {
         let linkUrl = '';
         if (imageNumber === '3') linkUrl = '17056.html';
         else if (imageNumber === '5') linkUrl = '16453.html';
-
         if (linkUrl) {
-            imagesHtml += `<a href="${linkUrl}" target="_blank" style="position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.85); color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 2000; transition: transform 0.2s, background-color 0.2s; white-space: nowrap; cursor: pointer;" onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">HTML 페이지 확인하기 &rarr;</a>`;
+            imagesHtml += `
+                <a href="${linkUrl}" target="_blank" style="position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.85); color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 2000; transition: transform 0.2s, background-color 0.2s; white-space: nowrap; cursor: pointer;" onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">HTML 페이지 확인하기 &rarr;</a>
+            `;
         }
     }
-    
     detailContainer.innerHTML = imagesHtml;
     detailOverlay.classList.remove('mobile-exhibition-overlay');
     if (!isWideScreen()) {
@@ -652,29 +869,31 @@ function openExhibitionImagePopup(imageNumber) {
 }
 
 generalCloseBtn.addEventListener('click', closeAllPopups);
-generalOverlay.addEventListener('click', (event) => { if (event.target === generalOverlay) closeAllPopups(); });
+generalOverlay.addEventListener('click', (event) => {
+    if (event.target === generalOverlay) closeAllPopups();
+});
 listCloseBtn.addEventListener('click', closeAllPopups);
-listOverlay.addEventListener('click', (event) => { if (event.target === listOverlay) closeAllPopups(); });
-detailCloseBtn.addEventListener('click', () => { detailOverlay.style.display = 'none'; openExhibitionPagePopup(); });
-detailOverlay.addEventListener('click', (event) => { if (event.target === detailOverlay) { detailOverlay.style.display = 'none'; openExhibitionPagePopup(); } });
-
-const video = document.getElementById('myVideo');
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            video.play();
-        } else {
-            video.pause();
-        }
-    });
-}, { threshold: 0.5 });
-observer.observe(video);
-
+listOverlay.addEventListener('click', (event) => {
+    if (event.target === listOverlay) closeAllPopups();
+});
+detailCloseBtn.addEventListener('click', () => {
+   detailOverlay.style.display = 'none';
+   openExhibitionPagePopup();
+});
+detailOverlay.addEventListener('click', (event) => {
+    if (event.target === detailOverlay) {
+        detailOverlay.style.display = 'none';
+        openExhibitionPagePopup();
+    }
+});
 document.querySelectorAll(".model-viewer-item").forEach(viewer => {
     let isHovering = false;
     let maxRotation = 30;
-    viewer.addEventListener("mouseenter", () => isHovering = true);
-    viewer.addEventListener("mouseleave", () => { isHovering = false; viewer.cameraOrbit = `0deg 90deg auto`; });
+    viewer.addEventListener("mouseenter", () => { isHovering = true; });
+    viewer.addEventListener("mouseleave", () => {
+        isHovering = false;
+        viewer.cameraOrbit = `0deg 90deg auto`;
+    });
     viewer.addEventListener("mousemove", (event) => {
         if (isHovering) {
             const rect = viewer.getBoundingClientRect();
