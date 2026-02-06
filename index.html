@@ -123,6 +123,12 @@ body::-webkit-scrollbar-thumb:hover {
     90% { opacity: 1; }
     100% { opacity: 1; }
 }
+/* [추가] 애니메이션 종료 후 a_2 이미지를 강제로 켜두는 클래스 */
+.flicker-layer.is-active {
+    opacity: 1 !important; /* 강제로 보이게 설정 */
+    animation: none !important; /* 깜빡임 애니메이션 제거 */
+}
+
 
 .scroll-trigger{
 	position: relative;
@@ -638,10 +644,11 @@ const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
 
-// [수정됨] 단계별 스크롤 애니메이션 로직
+// [수정됨] 스크롤 로직 및 초기화 설정
 const scrollTrigger = document.querySelector('.scroll-trigger');
 const zoomGroup = document.querySelector('.zoom-group');
 const finalLayer = document.querySelector('.final-layer');
+const flickerLayer = document.querySelector('.flicker-layer'); // a_2 이미지 선택
 
 window.addEventListener('scroll', () => {
     if (!scrollTrigger) return;
@@ -655,15 +662,15 @@ window.addEventListener('scroll', () => {
     // 스크롤 진행률 (0 ~ 1)
     let progress = (scrollTop - triggerTop) / (triggerHeight - windowHeight);
     
-    // 범위 제한
+    // 범위 제한 (0 이하, 1 이상 방지)
     if (progress < 0) progress = 0;
     if (progress > 1) progress = 1;
 
-    // [단계 1] 확대 (0% ~ 60% 구간): 1배 -> 2.5배 확대
-    // progress가 0.6을 넘으면 더 이상 확대하지 않고 2.5배 유지
+    // [단계 1] 확대 (0% ~ 60%): 스크롤을 내리면 확대, 올리면 축소
     let zoomProgress = progress / 0.6; 
     if (zoomProgress > 1) zoomProgress = 1;
 
+    // 1배 ~ 2.5배 사이로 조절 (스크롤 올리면 progress가 0이 되어 scale도 1로 돌아감)
     const maxScale = 2.5; 
     const scale = 1 + (zoomProgress * (maxScale - 1));
     
@@ -671,26 +678,28 @@ window.addEventListener('scroll', () => {
         zoomGroup.style.transform = `scale(${scale})`;
     }
 
-    // [단계 2] 교체 (60% ~ 80% 구간): b.jpg 페이드 인
-    // 확대가 끝난 후 이미지가 서서히 교체됨
+    // [단계 2] 교체 (60% ~ 80%): b.jpg 페이드 인/아웃
     if (finalLayer) {
         if (progress > 0.6) {
-            // 0.6 ~ 0.8 사이에서 투명도 0 -> 1
             let opacity = (progress - 0.6) / 0.2;
             if (opacity > 1) opacity = 1;
             finalLayer.style.opacity = opacity;
         } else {
+            // 스크롤을 다시 올리면 0.6 이하 구간에서 투명해짐 (b 사라짐 -> a_2 보임)
             finalLayer.style.opacity = 0;
         }
     }
-
-    // [단계 3] 80% ~ 100% 구간: 상태 유지 (사용자가 내용을 볼 시간)
-    // 이후 스크롤이 더 진행되면 CSS sticky가 끝나면서 자연스럽게 화면이 올라갑니다.
 });
 
-// 초기 조명 애니메이션(4초) 후 스크롤 잠금 해제
+// [수정됨] 초기 설정: 4초 후 스크롤 잠금 해제 + 조명 켜진 상태 고정
 setTimeout(() => {
+    // 1. 스크롤 잠금 해제
     document.body.classList.remove('no-scroll');
+    
+    // 2. 조명 이미지(a_2)를 켜진 상태로 고정 (a_1으로 돌아가지 않게 함)
+    if (flickerLayer) {
+        flickerLayer.classList.add('is-active');
+    }
 }, 4000);
 
 
