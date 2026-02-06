@@ -658,13 +658,22 @@ body::-webkit-scrollbar-thumb:hover {
     </div>
 </div>
 
-<script>
+/* [수정됨] 스크립트 전체 교체 */
+
+// 1. 새로고침 시 스크롤 최상단 이동 및 위치 기억 방지
+if (history.scrollRestoration) {
+    history.scrollRestoration = "manual";
+}
+window.scrollTo(0, 0);
+
+// 변수 선언
 let lastScrollPosition = 0;
 let popupScrollPosition = 0;
 let isDragging = false;
 let startX = 0;
 let startAzimuth = 0;
 
+// 요소 선택
 const models = document.querySelectorAll('.model-viewer-item');
 const generalOverlay = document.getElementById('general-image-overlay');
 const generalContent = document.getElementById('general-image-content');
@@ -681,21 +690,54 @@ const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
 
-// [추가됨] 새로고침 시 스크롤 최상단 이동 및 위치 기억 방지
-if (history.scrollRestoration) {
-    history.scrollRestoration = "manual";
-}
-window.scrollTo(0, 0);
-
-// 기존 변수 선언...
-let lastScrollPosition = 0;
-// ...
+const scrollTrigger = document.querySelector('.scroll-trigger');
+const zoomGroup = document.querySelector('.zoom-group');
+const finalLayer = document.querySelector('.final-layer');
+const flickerLayer = document.querySelector('.flicker-layer');
 
 function isWideScreen() {
     return window.innerWidth >= 759;
 }
 
-// model-viewer 클릭/드래그 이벤트 처리
+// 2. 스크롤 줌 & 이미지 교체 로직
+window.addEventListener('scroll', () => {
+    if (!scrollTrigger) return;
+
+    const rect = scrollTrigger.getBoundingClientRect();
+    const scrollTop = window.scrollY;
+    const triggerTop = scrollTrigger.offsetTop;
+    const triggerHeight = scrollTrigger.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    let progress = (scrollTop - triggerTop) / (triggerHeight - windowHeight);
+    
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+
+    // [1단계] 확대 (0 ~ 60%)
+    let zoomProgress = progress / 0.6; 
+    if (zoomProgress > 1) zoomProgress = 1;
+
+    const maxScale = 3.5; 
+    const scale = 1 + (zoomProgress * (maxScale - 1));
+    
+    if (zoomGroup) {
+        zoomGroup.style.transform = `scale(${scale})`;
+    }
+
+    // [2단계] 이미지 교체 (60% ~ 80%)
+    if (finalLayer) {
+        if (progress > 0.6) {
+            let opacity = (progress - 0.6) / 0.2;
+            if (opacity > 1) opacity = 1;
+            finalLayer.style.opacity = opacity;
+        } else {
+            finalLayer.style.opacity = 0;
+        }
+    }
+});
+
+// 3. model-viewer 이벤트 처리
 models.forEach(model => {
     model.addEventListener('pointerdown', e => {
         isDragging = false;
@@ -743,12 +785,14 @@ models.forEach(model => {
     });
 });
 
+// 4. 팝업 관련 함수들
 function closeAllPopups() {
    generalOverlay.style.display = 'none';
    listOverlay.style.display = 'none';
    detailOverlay.style.display = 'none';
    document.body.classList.remove('no-scroll');
-   window.scrollTo(0, lastScrollPosition);
+   // 팝업 닫을 때는 원래 위치로 돌아가되, 강제 스크롤 제어는 하지 않음
+   if (lastScrollPosition > 0) window.scrollTo(0, lastScrollPosition);
    generalCloseBtn.classList.remove('black-close-btn');
 }
 
@@ -774,28 +818,15 @@ function openGeneralPopup(imageSrc) {
     if (imageSrc.includes('SO_detail.jpg') && isWideScreen()) {
         contentHtml += `
             <a href="230821_19236.html" target="_blank" style="
-                position: fixed;
-                bottom: 50px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: rgba(0, 0, 0, 0.85);
-                color: #fff;
-                padding: 15px 30px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-weight: bold;
-                font-size: 16px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                z-index: 2000;
-                transition: transform 0.2s, background-color 0.2s;
-                white-space: nowrap;
-                cursor: pointer;
-            " 
-            onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'" 
-            onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">
+                position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.85); color: #fff; padding: 15px 30px;
+                text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 2000;
+                transition: transform 0.2s, background-color 0.2s; white-space: nowrap; cursor: pointer;"
+                onmouseover="this.style.backgroundColor='black'; this.style.transform='translateX(-50%) scale(1.05)'"
+                onmouseout="this.style.backgroundColor='rgba(0,0,0,0.85)'; this.style.transform='translateX(-50%) scale(1)'">
                 HTML 페이지 확인하기 &rarr;
-            </a>
-        `;
+            </a>`;
     }
     generalImageContainer.innerHTML = contentHtml;
     generalOverlay.style.display = 'flex';
@@ -803,6 +834,7 @@ function openGeneralPopup(imageSrc) {
 }
 
 function openExhibitionPagePopup() {
+    // (기존 전시 팝업 HTML 코드는 길어서 생략하지 않고 그대로 사용)
     const exhibitionHtml = `
         <div class="exhibition-grid">
             <div class="column-left">
@@ -963,11 +995,14 @@ document.querySelectorAll(".model-viewer-item").forEach(viewer => {
     });
 });
 
-// [추가됨] 초기 조명 애니메이션(4초) 후 스크롤 잠금 해제
+// [중요] 초기 조명 애니메이션(4초) 후 스크롤 잠금 해제
 setTimeout(() => {
     document.body.classList.remove('no-scroll');
-}, 4000); // CSS animation 시간(4s)과 동일하게 설정
-
+    // 애니메이션이 끝나면 조명(a_2) 켜진 상태 유지
+    if (flickerLayer) {
+        flickerLayer.classList.add('is-active');
+    }
+}, 4000);
 </script>
 
 </body>
