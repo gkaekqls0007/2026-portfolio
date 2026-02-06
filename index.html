@@ -87,6 +87,9 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* 4. 화면 너비가 1900px 이상일 때: top: -40% 효과 적용 */
 @media (min-width: 1900px) {
+    .intro-visual-wrapper{
+	height: 100vh;
+    }
     .base-layer {
         margin-top: -20%;
     }
@@ -422,17 +425,30 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
-    .model-viewer-wrapper {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: flex-start;
-        margin-bottom: 100px;
+   /* (1) 프로필 이미지 교체 */
+    .pc-image-wrapper {
+        display: none;
     }
+    .mob-image-wrapper {
+        display: block;
+    }
+
+    /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
+    .model-viewer-wrapper {
+        flex-direction: row; /* 가로 방향 배치 */
+        flex-wrap: wrap; /* 줄바꿈 허용 */
+        justify-content: space-between; /* 양 끝 정렬 */
+        padding: 0 15px; /* 전체 컨테이너 양옆 여백 */
+        box-sizing: border-box;
+        width: 100%;
+    }
+
     .model-viewer-item {
-        width: 45vw;
-        height: 45vw;
-        margin: 10px 1vw;
+        /* 50%에서 사이 간격(10px) 뺀 크기 -> 한 줄에 2개 */
+        width: calc(50% - 10px) !important; 
+        max-width: none !important;
+        height: 60vw !important; /* 높이는 너비에 비례하게 설정 (조절 가능) */
+        margin: 0 0 20px 0; /* 아래쪽 여백만 20px */
     }
     .popup-content .image-group .image-title {
         color: black;
@@ -665,6 +681,15 @@ const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
 
+// [추가됨] 새로고침 시 스크롤 최상단 이동 및 위치 기억 방지
+if (history.scrollRestoration) {
+    history.scrollRestoration = "manual";
+}
+window.scrollTo(0, 0);
+
+// 기존 변수 선언...
+let lastScrollPosition = 0;
+// ...
 
 function isWideScreen() {
     return window.innerWidth >= 759;
