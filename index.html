@@ -45,59 +45,83 @@ body::-webkit-scrollbar-thumb:hover {
     align-items: center;
 }
 
-/* --- [새로 추가됨] 조명 깜빡임 애니메이션 스타일 --- */
-.intro-visual-wrapper {
-    position: relative;
+/* --- [수정됨] 조명 깜빡임 + 스크롤 줌 스타일 --- */
+.scroll-trigger {
     width: 100%;
-    /* 높이는 이미지 비율에 따라 자동 조절되도록 설정 */
-    display: block; 
+    height: 350vh; /* 스크롤 거리 확보 */
+    position: relative;
+}
+
+.sticky-visual {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .intro-img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
-}
-
-/* 어두운 이미지 (항상 보임, 위치 잡아주는 역할) */
-.base-layer {
-    position: relative;
-    z-index: 1;
-}
-
-/* 밝은 이미지 (어두운 이미지 위에 겹침) */
-.effect-layer {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    opacity: 0; /* 처음에는 안 보임 */
-    /* 총 2.5초 동안 애니메이션 실행 (대기 1초 포함)하고 마지막 상태 유지 */
-    animation: lightFlicker 2.5s linear forwards;
 }
 
-/* 조명 깜빡임 키프레임 정의 */
+/* 1. 줌인 그룹 (a_1과 a_2를 묶어서 같이 확대함) */
+.zoom-group {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    /* 확대 중심점: b이미지와 위치를 맞추기 위해 상단 30% 지점 기준 */
+    transform-origin: center 30%;
+    will-change: transform;
+}
+
+/* 2. 어두운 배경 (a_1) */
+.base-layer {
+    z-index: 1;
+}
+
+/* 3. 조명 효과 (a_2) - 깜빡임 애니메이션 */
+.flicker-layer {
+    z-index: 2;
+    opacity: 0;
+    /* 2.5초간 깜빡인 후 켜진 상태(opacity: 1) 유지 */
+    animation: lightFlicker 4s linear forwards;
+}
+
+/* 4. 고화질 교체 이미지 (b) */
+.final-layer {
+    z-index: 3;
+    opacity: 0; /* 스크롤 전에는 숨김 */
+    will-change: opacity;
+}
+
+/* 조명 깜빡임 키프레임 */
 @keyframes lightFlicker {
-    /* 0% ~ 40% (약 1초): 어두운 상태 유지 (a_1) */
     0% { opacity: 0; }
-    40% { opacity: 0; }
-
-    /* 40% ~ 80% (약 1초): 깜빡깜빡 (지지직 거리는 느낌) */
-    41% { opacity: 0.4; }
-    43% { opacity: 0; }
-    46% { opacity: 0.8; }
-    48% { opacity: 0.1; }
-    50% { opacity: 0.3; }
-    55% { opacity: 0; }
-    60% { opacity: 1; }
-    65% { opacity: 0.2; }
-    70% { opacity: 0.7; }
-    75% { opacity: 0.4; }
-
-    /* 80% 이후: 완전히 켜짐 (a_2) */
-    80% { opacity: 1; }
+    50% { opacity: 0; }
+    51% { opacity: 0.4; }
+    53% { opacity: 0; }
+    56% { opacity: 0.8; }
+    58% { opacity: 0.1; }
+    60% { opacity: 0.3; }
+    65% { opacity: 0; }
+    70% { opacity: 1; }
+    75% { opacity: 0.2; }
+    80% { opacity: 0.7; }
+    85% { opacity: 0.4; }
+    90% { opacity: 1; }
     100% { opacity: 1; }
 }
 
@@ -109,7 +133,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 .intro-visual-wrapper{
 	position: absolute;
-	top: -500px;
+	top: -40%;
 	transform: scale(1.2);
 }
 
@@ -498,10 +522,13 @@ body::-webkit-scrollbar-thumb:hover {
 
 <div class="container">
     <div class="scroll-trigger">
-        <div class="intro-visual-wrapper">
-    		<img src="assets/a_1.png" class="intro-img base-layer" alt="Portfolio Dark">
-    
-    		<img src="assets/a_2.png" class="intro-img effect-layer" alt="Portfolio Light">
+    	<div class="sticky-visual">
+        	<div class="zoom-group">
+            		<img src="assets/a_1.png" class="intro-img base-layer" alt="Base View">
+            		<img src="assets/a_2.png" class="intro-img flicker-layer" alt="Light View">
+        	</div>
+
+        	<img src="assets/b.png" class="intro-img final-layer" alt="Detail View">
 	</div>
     </div>
     <div class="pc-image-wrapper">
@@ -611,6 +638,49 @@ const detailOverlay = document.getElementById('exhibition-detail-overlay');
 const detailContent = document.getElementById('exhibition-detail-content');
 const detailCloseBtn = document.getElementById('detail-close-btn');
 const detailContainer = document.getElementById('exhibition-detail-container');
+
+// [재추가됨] 스크롤 줌 & 이미지 교체 로직
+const scrollTrigger = document.querySelector('.scroll-trigger');
+const zoomGroup = document.querySelector('.zoom-group'); // a_1, a_2가 담긴 그룹
+const finalLayer = document.querySelector('.final-layer'); // b 이미지
+
+window.addEventListener('scroll', () => {
+    if (!scrollTrigger) return;
+
+    const rect = scrollTrigger.getBoundingClientRect();
+    const scrollTop = window.scrollY;
+    const triggerTop = scrollTrigger.offsetTop;
+    const triggerHeight = scrollTrigger.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    // 스크롤 진행률 계산 (0 ~ 1)
+    let progress = (scrollTop - triggerTop) / (triggerHeight - windowHeight);
+    
+    // 범위 제한
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+
+    // 1. 확대 (Zoom): a_1과 a_2가 담긴 그룹 전체를 확대
+    // 1배에서 시작해 2배(b이미지 사이즈와 비슷하게)까지 확대
+    const maxScale = 2; 
+    const scale = 1 + (progress * (maxScale - 1));
+    
+    if (zoomGroup) {
+        zoomGroup.style.transform = `scale(${scale})`;
+    }
+
+    // 2. 교체 (Cross-fade): 스크롤 끝부분(80%~)에서 b이미지로 자연스럽게 전환
+    if (finalLayer) {
+        if (progress > 0.8) {
+            // 0.8 ~ 1.0 구간 동안 투명도 0 -> 1
+            const opacity = (progress - 0.8) / 0.2;
+            finalLayer.style.opacity = opacity;
+        } else {
+            finalLayer.style.opacity = 0;
+        }
+    }
+});
+
 
 function isWideScreen() {
     return window.innerWidth >= 759;
