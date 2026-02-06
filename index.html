@@ -45,12 +45,14 @@ body::-webkit-scrollbar-thumb:hover {
     align-items: center;
 }
 
-/* --- [새로 추가됨] 조명 깜빡임 애니메이션 스타일 --- */
+/* --- [수정됨] 조명 깜빡임 애니메이션 및 레이아웃 --- */
+
+/* 1. 컨테이너: 고정 높이(100vh) 제거하고 내용물에 맞춤 */
 .intro-visual-wrapper {
     position: relative;
     width: 100%;
-    height: 100vh;
-    /* 높이는 이미지 비율에 따라 자동 조절되도록 설정 */
+    height: auto; /* 높이 자동 조절 (이미지 크기에 따름) */
+    overflow: hidden; /* 위로 올라간 이미지 부분 잘라내기 */
     display: block; 
 }
 
@@ -60,28 +62,41 @@ body::-webkit-scrollbar-thumb:hover {
     display: block;
 }
 
-/* 어두운 이미지 (항상 보임, 위치 잡아주는 역할) */
+/* 2. 어두운 이미지 (위치 기준) */
 .base-layer {
-    position: absolute;
+    position: relative;
     z-index: 1;
+    /* 기본값: 1900px 미만일 때 top: -20% 효과 */
+    margin-top: -20%; 
 }
 
-/* 밝은 이미지 (어두운 이미지 위에 겹침) */
+/* 3. 밝은 이미지 (어두운 이미지 위에 겹침) */
 .effect-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100%; /* base-layer와 동일한 크기 유지 */
     z-index: 2;
-    opacity: 0; /* 처음에는 안 보임 */
-    /* 총 4초 동안 애니메이션 실행 (대기 1초 포함)하고 마지막 상태 유지 */
+    /* base-layer와 동일하게 위치 조정 */
+    margin-top: -20%;
+    
+    opacity: 0;
     animation: lightFlicker 4s linear forwards;
 }
 
-/* 조명 깜빡임 키프레임 정의 */
+/* 4. 화면 너비가 1900px 이상일 때: top: -40% 효과 적용 */
+@media (min-width: 1900px) {
+    .base-layer {
+        margin-top: -40%;
+    }
+    .effect-layer {
+        margin-top: -40%;
+    }
+}
+
+/* 조명 깜빡임 키프레임 (기존과 동일) */
 @keyframes lightFlicker {
-    /* 0% ~ 40% (약 1초): 어두운 상태 유지 (a_1) */
     0% { opacity: 0; }
     53% { opacity: 0; }
     56% { opacity: 0.8; }
@@ -94,19 +109,6 @@ body::-webkit-scrollbar-thumb:hover {
     70% { opacity: 0.4; }
     75% { opacity: 1; }
     100% { opacity: 1; }
-}
-
-.scroll-trigger{
-	position: relative;
-	width: 100%;
-	height: 100vh;
-	overflow: hidden;
-}
-.intro-visual-wrapper{
-	position: relative;
-	width: 100%;
-	height: 100vh;
-	overflow: hidden;
 }
 
 
@@ -505,6 +507,7 @@ body::-webkit-scrollbar-thumb:hover {
         <img src="assets/mob_profile_01.jpg" alt="Mobile Profile">
     </div>
 
+    <video id="myVideo" src="assets/gift_box_total_2.mp4" muted autoplay loop></video>
     <p class="sub_txt">아래 object를 클릭하면 상세페이지로 넘어갑니다.</p>
 
     <div class="model-viewer-wrapper" id="main-content">
