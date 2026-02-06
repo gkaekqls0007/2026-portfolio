@@ -79,11 +79,9 @@ body::-webkit-scrollbar-thumb:hover {
     width: 100%;
     height: 100%;
     position: absolute;
-    top: 0;
+    top: -50%;
     left: 0;
     z-index: 1;
-    /* 확대 중심점: b이미지와 위치를 맞추기 위해 상단 30% 지점 기준 */
-    transform-origin: center 30%;
     will-change: transform;
 }
 
@@ -518,7 +516,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 </style>
 </head>
-<body>
+<body class="no-scroll">
 
 <div class="container">
     <div class="scroll-trigger">
@@ -953,6 +951,12 @@ document.querySelectorAll(".model-viewer-item").forEach(viewer => {
         }
     });
 });
+
+// [추가됨] 초기 조명 애니메이션(4초) 후 스크롤 잠금 해제
+setTimeout(() => {
+    document.body.classList.remove('no-scroll');
+}, 4000); // CSS animation 시간(4s)과 동일하게 설정
+
 </script>
 
 </body>
