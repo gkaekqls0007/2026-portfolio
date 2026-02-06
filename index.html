@@ -397,6 +397,15 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* 반응형 */
 @media (min-width: 1480px) {
+/* 1. PC/Mobile 래퍼 기본 설정 */
+.pc-image-wrapper {
+    display: block;
+    width: 100%;
+}
+.mob-image-wrapper {
+    display: none; /* 기본적으로 숨김 (PC 기준) */
+    width: 100%;
+}
     .model-viewer-wrapper {
         flex-direction: row;
         flex-wrap: wrap;
@@ -411,6 +420,15 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (min-width: 769px) and (max-width: 1479px) {
+/* 1. PC/Mobile 래퍼 기본 설정 */
+.pc-image-wrapper {
+    display: block;
+    width: 100%;
+}
+.mob-image-wrapper {
+    display: none; /* 기본적으로 숨김 (PC 기준) */
+    width: 100%;
+}
     .model-viewer-wrapper {
         flex-direction: row;
         flex-wrap: wrap;
@@ -507,15 +525,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 /* --- [추가/수정] PC & 모바일 이미지 전환 및 리사이징 스타일 --- */
 
-/* 1. PC/Mobile 래퍼 기본 설정 */
-.pc-image-wrapper {
-    display: block;
-    width: 100%;
-}
-.mob-image-wrapper {
-    display: none; /* 기본적으로 숨김 (PC 기준) */
-    width: 100%;
-}
+
 
 /* 2. 동영상 리사이징 (화면 너비에 맞춤) */
 #myVideo {
