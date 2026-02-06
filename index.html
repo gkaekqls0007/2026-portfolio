@@ -88,10 +88,10 @@ body::-webkit-scrollbar-thumb:hover {
 /* 4. 화면 너비가 1900px 이상일 때: top: -40% 효과 적용 */
 @media (min-width: 1900px) {
     .base-layer {
-        margin-top: -40%;
+        margin-top: -20%;
     }
     .effect-layer {
-        margin-top: -40%;
+        margin-top: -20%;
     }
 }
 
@@ -489,6 +489,62 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 
+/* --- [추가/수정] PC & 모바일 이미지 전환 및 리사이징 스타일 --- */
+
+/* 1. PC/Mobile 래퍼 기본 설정 */
+.pc-image-wrapper {
+    display: block;
+    width: 100%;
+}
+.mob-image-wrapper {
+    display: none; /* 기본적으로 숨김 (PC 기준) */
+    width: 100%;
+}
+
+/* 2. 동영상 리사이징 (화면 너비에 맞춤) */
+#myVideo {
+    width: 100%;
+    max-width: 1920px;
+    height: auto;
+    display: block;
+}
+
+/* 3. 모바일 반응형 (~750px) */
+@media (max-width: 750px) {
+    /* (1) 프로필 이미지 교체 */
+    .pc-image-wrapper {
+        display: none; /* PC용 숨김 */
+    }
+    .mob-image-wrapper {
+        display: block; /* 모바일용 보이기 */
+    }
+
+    /* (2) 3D 모델 뷰어 리사이징 */
+    .model-viewer-wrapper {
+        flex-direction: column; /* 세로로 정렬 */
+        align-items: center;
+        width: 100%;
+    }
+
+    .model-viewer-item {
+        /* 가로 길이에 꽉 차게 조정 */
+        width: 100% !important; 
+        max-width: none !important;
+        /* 높이는 정사각형 비율로 자동 조정 (필요 시 px단위로 고정 가능) */
+        height: 100vw !important; 
+        margin: 20px 0; /* 위아래 여백 */
+    }
+
+    /* (3) 팝업 내 이미지 간격 등 모바일 최적화 */
+    .popup-content .image-group {
+        gap: 80px;
+    }
+    .popup-content .image-group.two-images-pc-m {
+        gap: 40px;
+    }
+}
+
+
 
 </style>
 </head>
@@ -504,7 +560,7 @@ body::-webkit-scrollbar-thumb:hover {
         <img src="assets/profile_02.jpg" alt="Profile 02">
     </div>
     <div class="mob-image-wrapper">
-        <img src="assets/mob_profile_01.jpg" alt="Mobile Profile">
+        <img src="assets/mob_profile_01.png" alt="Mobile Profile">
     </div>
 
     <video id="myVideo" src="assets/gift_box_total_2.mp4" muted autoplay loop></video>
