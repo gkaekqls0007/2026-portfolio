@@ -82,7 +82,7 @@ body::-webkit-scrollbar-thumb:hover {
     width: 100%;
     height: auto; /* 높이 자동 조절 (이미지 크기에 따름) */
     overflow: hidden; /* 위로 올라간 이미지 부분 잘라내기 */
-    display: block; 
+    display: flex; 
 }
 
 .intro-img {
@@ -457,13 +457,10 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
-    .intro-visual-wrapper{
-        overflow: auto;
-    }
-
      .intro-img {
-    	transform: scale(1.9);
-        transform-origin: 47% 10%;
+    	width: 190%;
+        height: auto;
+        margin-left: -45%;
      }
 
     /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
@@ -668,13 +665,15 @@ body::-webkit-scrollbar-thumb:hover {
         .skills-list p { margin-bottom: 8px; word-spacing: 15px; font-weight: 600; }
 
         /* ============================ */
-        /* 모바일 반응형 (750px 이하) */
+        /* 모바일 반응형 (768px 이하) */
         /* ============================ */
-        @media (max-width: 750px){
+        @media (max-width: 768px){
             .profile-container {
                 flex-direction: column;
                 gap: 0;
                 padding: 60% 0;
+                margin: 0 auto;
+                width: 100%;
             }
 
             /* [수정 시작] 왼쪽 컬럼 배경 그라데이션 및 텍스트 색상 변경 */
@@ -775,11 +774,13 @@ body::-webkit-scrollbar-thumb:hover {
             }
         }
 
-        @media (min-width: 751px) and (max-width: 1400px) {
+        @media (min-width: 769px) and (max-width: 1400px) {
             .profile-container {
                 flex-direction: column;
                 padding: 0;
                 gap: 0;
+                width: 100%;
+                margin: 0;
             }
             .left-column {
                 flex: auto;
