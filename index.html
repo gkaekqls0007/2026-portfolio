@@ -597,7 +597,7 @@ body::-webkit-scrollbar-thumb:hover {
         }
 
         /* 3. 메인 컨테이너 */
-        .container {
+        .profile-container {
             position: relative;
             z-index: 1;
             max-width: 1920px;
@@ -675,7 +675,7 @@ body::-webkit-scrollbar-thumb:hover {
         /* 모바일 반응형 (750px 이하) */
         /* ============================ */
         @media (max-width: 750px){
-            .container {
+            .profile-container {
                 flex-direction: column;
                 gap: 0;
                 padding: 0; 
@@ -780,7 +780,7 @@ body::-webkit-scrollbar-thumb:hover {
         }
 
         @media (min-width: 751px) and (max-width: 1400px) {
-            .container {
+            .profile-container {
                 flex-direction: column;
                 padding: 0;
                 gap: 0;
@@ -839,11 +839,11 @@ body::-webkit-scrollbar-thumb:hover {
         }
 
         @media (min-width: 1601px) and (max-width: 2000px){
-            .container{ justify-content: center; }
+            .profile-container{ justify-content: center; }
         }
 
         @media (min-width: 1401px) and (max-width: 1600px){
-            .container{ gap: 0; }
+            .profile-container{ gap: 0; }
             .main-headline { font-size: 3.5rem; margin-bottom: 60px; }
             .profile-img-box { width: 220px; height: 300px; }
             .left-column { flex: 0 0 700px; }
@@ -884,7 +884,7 @@ body::-webkit-scrollbar-thumb:hover {
         <div class="noise-overlay"></div>
     </div>
 
-    <div class="container">
+    <div class="profile-container">
         <div class="left-column">
             <h1 class="main-headline">
                 작은 시작도 끝까지 책임지는<br>
@@ -892,7 +892,7 @@ body::-webkit-scrollbar-thumb:hover {
             </h1>
 
             <div class="profile-img-box">
-                <img src="profile.jpg" alt="Profile_img">
+                <img src="assets/profile.jpg" alt="Profile_img">
             </div>
 
             <div class="name-info">
