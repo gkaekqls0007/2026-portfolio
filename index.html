@@ -443,12 +443,19 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
+     .intro-visual-wrapper{
+	position: absolute;
+	width: 170%;
+	z-index: -1;
+    }
+
     /* (1) 프로필 이미지 교체 */
     .pc-image-wrapper {
         display: none;
     }
     .mob-image-wrapper {
         display: block;
+	margin-top: 20vh;
     }
 
     /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
