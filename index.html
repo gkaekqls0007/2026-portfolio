@@ -36,9 +36,8 @@ img {
     -khtml-user-drag: none;
     -moz-user-drag: none;
     -o-user-drag: none;
-    
-    /* [선택사항] 이미지 클릭이나 호버 반응도 아예 없애려면 추가 */
     pointer-events: none; 
+    cursor: default;
 }
 body {
     font-family: 'Pretendard', sans-serif;
@@ -852,22 +851,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 </style>
 </head>
-<script>
-    // 우클릭 메뉴 차단
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    // 드래그 시작 차단 (이미지 끌기 방지)
-    document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-    });
-
-    // 선택 시작 차단 (텍스트 긁기 방지)
-    document.addEventListener('selectstart', function(e) {
-        e.preventDefault();
-    });
-</script>
 <body>
 
 <div class="container">
@@ -1335,6 +1318,21 @@ document.querySelectorAll(".model-viewer-item").forEach(viewer => {
         }
     });
 });
+
+// 1. 우클릭 메뉴 차단 (이미지와 동영상에서만)
+    document.addEventListener('contextmenu', function(e) {
+        // 클릭한 요소가 이미지(IMG) 또는 비디오(VIDEO) 태그라면
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+            e.preventDefault(); // 메뉴창 뜨는 것을 막음
+        }
+    });
+
+    // 2. 드래그 시작 차단 (이미지와 동영상에서만)
+    document.addEventListener('dragstart', function(e) {
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+            e.preventDefault(); // 끌어가기를 막음
+        }
+    });
 
 </script>
 
