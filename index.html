@@ -443,9 +443,16 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
+
+     .intro-img {
+    	transform: scale(1.6);
+	transform-origin: top;
+     }
+
      .intro-visual-wrapper{
 	position: absolute;
-	width: 170%;
+	width: 100%;
+	height: 100vh;
 	z-index: -1;
     }
 
@@ -455,7 +462,7 @@ body::-webkit-scrollbar-thumb:hover {
     }
     .mob-image-wrapper {
         display: block;
-	margin-top: 20vh;
+	margin-top: 80%;
     }
 
     /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
