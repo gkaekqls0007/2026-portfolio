@@ -117,7 +117,8 @@ body::-webkit-scrollbar-thumb:hover {
 /* 4. 화면 너비가 1900px 이상일 때: top: -40% 효과 적용 */
 @media (min-width: 1900px) {
     .intro-visual-wrapper{
-	height: 100vh;
+	    height: 100vh;
+        overflow: hidden;
     }
     .base-layer {
         margin-top: -20%;
@@ -456,10 +457,13 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
+    .intro-visual-wrapper{
+        overflow: auto;
+    }
 
      .intro-img {
-    	transform: scale(1.6);
-	transform-origin: top;
+    	transform: scale(1.9);
+        transform-origin: 47% 10%;
      }
 
     /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
@@ -670,7 +674,7 @@ body::-webkit-scrollbar-thumb:hover {
             .profile-container {
                 flex-direction: column;
                 gap: 0;
-                padding: 0; 
+                padding: 60% 0;
             }
 
             /* [수정 시작] 왼쪽 컬럼 배경 그라데이션 및 텍스트 색상 변경 */
@@ -697,7 +701,7 @@ body::-webkit-scrollbar-thumb:hover {
             /* 배경이 어두워졌으므로 내부 글자색을 밝게 변경 */
             .main-headline {
                 grid-area: head;
-                font-size: 2.8rem;
+                font-size: 2.5rem;
                 margin-bottom: 10px;
                 color: #ffffff; /* 흰색 */
             }
@@ -706,7 +710,7 @@ body::-webkit-scrollbar-thumb:hover {
                 grid-area: intro;
                 margin-top: 0;
                 margin-bottom: 60px;
-                font-size: 1rem;
+                font-size: 0.95rem;
                 color: #e0e0e0; /* 밝은 회색 */
             }
             
