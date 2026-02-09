@@ -457,10 +457,16 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 @media (max-width: 768px) {
+    .intro-visual-wrapper{
+        position: initial;
+    }
+    .container > .intro-visual-wrapper > img{
+        width: 190%;
+    }
      .intro-img {
-    	width: 190%;
+    	
         height: auto;
-        margin-left: -45%;
+        margin-left: -42.5%%;
      }
 
     /* (2) 3D 모델 뷰어: 한 줄에 2개씩 배치 */
@@ -671,7 +677,7 @@ body::-webkit-scrollbar-thumb:hover {
             .profile-container {
                 flex-direction: column;
                 gap: 0;
-                padding: 60% 0;
+                padding: 0;
                 margin: 0 auto;
                 width: 100%;
             }
