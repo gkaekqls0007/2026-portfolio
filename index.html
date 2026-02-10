@@ -288,6 +288,7 @@ body::-webkit-scrollbar-thumb:hover {
     width: 40px !important;
     height: 40px !important;
     filter: invert(100%);
+    pointer-events: auto !important;
 }
 
 /* 모바일 전용, 검은색 닫기 버튼 */
@@ -696,7 +697,7 @@ body::-webkit-scrollbar-thumb:hover {
                 /* 배경: 검정 -> #999 그라데이션 */
                 background: linear-gradient(180deg, #000000 20%, transparent 90%);
                 /* 내부 여백 추가 */
-                padding: 80px 25px 50px;
+                padding: 90px 25px 50px;
                 /* 기본 텍스트 색상 흰색으로 변경 */
                 color: #fff;
             }
@@ -704,7 +705,7 @@ body::-webkit-scrollbar-thumb:hover {
             /* 배경이 어두워졌으므로 내부 글자색을 밝게 변경 */
             .main-headline {
                 grid-area: head;
-                font-size: 2.5rem;
+                font-size: 2.1rem;
                 margin-bottom: 10px;
                 color: #ffffff; /* 흰색 */
             }
@@ -713,18 +714,18 @@ body::-webkit-scrollbar-thumb:hover {
                 grid-area: intro;
                 margin-top: 0;
                 margin-bottom: 60px;
-                font-size: 0.95rem;
+                font-size: 0.8rem;
                 color: #e0e0e0; /* 밝은 회색 */
             }
             
             .name-info .name-text {
-                font-size: 1.1rem;
+                font-size: 0.95rem;
                 margin-bottom: 15px;
                 color: #000;
             }
 
             .contact-info p {
-                font-size: 1rem;
+                font-size: 0.9rem;
                 margin-bottom: 3px;
                 color: #000;
             }
@@ -763,8 +764,11 @@ body::-webkit-scrollbar-thumb:hover {
 
             .date {
                 flex: auto;
-                font-size: 1rem;
+                font-size: 0.95rem;
                 color: #777;
+            }
+            .desc{
+                font-size: 1rem;
             }
             .section-content {
                 padding-left: 1rem; 
@@ -772,6 +776,7 @@ body::-webkit-scrollbar-thumb:hover {
             .section-title {
                 margin-bottom: 15px;
                 width: 100%;
+                font-size: 0.85rem;
             }
             .skills-list p{
                 word-spacing: 2px;
